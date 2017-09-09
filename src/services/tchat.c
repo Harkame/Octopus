@@ -7,55 +7,57 @@ void tchat_handler(int* p_number)
     extern int g_count_client;
     extern pthread_mutex_t g_mutex;
     extern struct LIST_STRING* g_list_string;
-    extern struct LIST_INT* g_list;
     extern int g_sockets[];
 
-    char t_buffer[BUFSIZ];
+    char t_receive_buffer[BUFSIZ];
 
     while(1)
     {
-            ssize_t read_size = recv(g_sockets[t_number], t_buffer, BUFSIZ, 0);
+        ssize_t t_receved_bytes = recv(g_sockets[0], t_receive_buffer, BUFSIZ, 0);
 
-            if(read_size == 0)
-            {
-                      fprintf(stdout, "Connection lost : %d (%zu)\n", t_number, read_size);
-                      add_first_element_list_int(g_list, t_number);
+        if(t_receved_bytes <= 0)
+        {
+            pthread_mutex_init(&g_mutex, NULL);
 
-                      g_count_client--;
+            pthread_mutex_lock(&g_mutex);
 
-                      close(g_sockets[t_number]);
+            g_count_client--;
 
-                      pthread_exit(NULL);
-            }
-            else if(read_size == -1)
-            {
-                      fprintf(stdout, "Connection lost : %d (%zu)\n", t_number, read_size);
+            pthread_mutex_unlock(&g_mutex);
 
-                      add_first_element_list_int(g_list, t_number);
+            if(t_receved_bytes == 0)
+                fprintf(stdout, "a\n");
+            else if(t_receved_bytes == -1)
+                fprintf(stdout, "a\n");
 
-                      g_count_client--;
+            close(g_sockets[t_number]);
 
-                      close(g_sockets[t_number]);
+            pthread_exit(NULL);
+        }
+        else
+        {
+            char t_buffer[BUFSIZ];
 
-                      pthread_exit(NULL);
-            }
-            else
-            {
-                pthread_mutex_lock(&g_mutex);
-                add_element_list_string(g_list_string, t_buffer);
+            sprintf(t_buffer, "%d", t_number);
+            strcat(t_buffer, " : ");
+            strcat(t_buffer, t_receive_buffer);
 
-                if(size_list_string(g_list_string) > 10)
-                    remove_first_element_list_string(g_list_string);
-                pthread_mutex_unlock(&g_mutex);
+            pthread_mutex_init(&g_mutex, NULL);
 
-                print_textarea();
+            pthread_mutex_lock(&g_mutex);
 
-                memset(t_buffer, 0, BUFSIZ);
+            add_element_list_string(g_list_string, t_buffer);
 
-                move(46, 1);
-                clrtoeol();
+            pthread_mutex_unlock(&g_mutex);
 
-              memset(t_buffer, 0, BUFSIZ);
-            }
+            adjust_list_string();
+
+            print_textarea();
+
+            move(LINES - 2, 1);
+            clrtoeol();
+
+            memset(t_receive_buffer, 0, BUFSIZ);
+        }
     }
 }

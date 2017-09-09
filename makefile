@@ -23,7 +23,7 @@ server:
 	${GCC} ./src/server/server.c ${OPTIONS} ${SHARED} ${SERVICE} -o ./bin/server/server.o ;
 
 client:
-	${GCC} ./src/client/client.c ${OPTIONS}  ${LIBRARY} -o ./bin/client/client.o;
+	${GCC} ./src/client/client.c ${OPTIONS}  ${SHARED} -o ./bin/client/client.o;
 
 shared: file_transfer struct
 
@@ -47,5 +47,5 @@ test:
 	${GCC} ./test/struct/test_list_string.c ${SHARED} -o ./test/struct/test_list_string.o;
 
 clean:
-		rm -rf ./src/*/*.gch;
-		rm -rf ./bin/*/*.so
+		rm -rf ./src/*.gch;
+		rm -rf ./test/*.gch;

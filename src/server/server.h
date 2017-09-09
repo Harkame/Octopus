@@ -82,6 +82,19 @@ void initialize_windows();
 
 void initialize_services();
 
+/*
+* Protected by g_mutex
+*/
+void refresh_windows();
+
+/*
+* Protected by g_mutex
+*/
+void adjust_list_string();
+
+/*
+* Protected by g_mutex
+*/
 void print_textarea();
 
 void read_command_parameters();
