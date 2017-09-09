@@ -8,7 +8,6 @@ void* command_handler()
     int lines_read = 0;
     while(1)
     {
-        move(LINES - 2, 1);
         char t_readed_command[BUFSIZ];
         int len = get_line_non_blocking(&linep_bufferfer, t_readed_command, BUFSIZ);
         if(len > 0)
@@ -33,9 +32,6 @@ void* command_handler()
             lines_read ++;
 
             refresh_windows();
-
-            move(LINES - 2, 1);
-            clrtoeol();
         }
         render_line(&linep_bufferfer);
 
@@ -48,6 +44,9 @@ void refresh_windows()
     pthread_mutex_init(&g_mutex, NULL);
 
     pthread_mutex_lock(&g_mutex);
+
+    move(LINES - 2, 1);
+    clrtoeol();
 
     box(g_window_textarea, ACS_VLINE, ACS_HLINE);
     box(g_window_form, ACS_VLINE, ACS_HLINE);
@@ -150,103 +149,118 @@ struct OPTION* create_option()
 
 void foo()
 {
-          initialize_windows();
+    initialize_windows();
 
-          refresh_windows();
+    refresh_windows();
 
-          g_list_string = create_list_string();
+    g_list_string = create_list_string();
 
-          initialize_services();
+    initialize_services();
 
-          if(pthread_create(&g_command_thread, NULL, (void*) command_handler, NULL) == -1)
+    initialize_connections();
+
+    if(pthread_create(&g_command_thread, NULL, (void*) command_handler, NULL) == -1)
+    exit_program();
+
+    g_list = create_list_int();
+
+    int t_server_socket = socket(AF_INET , SOCK_STREAM , 0);
+
+    if(t_server_socket == -1)
+        exit_program();
+
+    init_socket(t_server_socket);
+
+    struct sockaddr_in t_sockaddr_in_client;
+
+    int t_index;
+
+    while(1)
+    {
+        pthread_mutex_init(&g_mutex, NULL);
+
+        pthread_mutex_lock(&g_mutex);
+
+        t_index = size_list_int(g_list);
+
+        if(t_index == 0)
+            t_index = g_count_client;
+        else
+        {
+            t_index = get_element_list_int(g_list, 0);
+            remove_element_list_int(g_list, 0);
+        }
+
+        pthread_mutex_unlock(&g_mutex);
+
+        int c = sizeof(struct sockaddr_in);
+
+        g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) &c);
+
+        if(g_connections[t_index]->a_socket == -1)
             exit_program();
 
-          g_list = create_list_int();
+        char t_receive_buffer[BUFSIZ];
 
-          int t_server_socket = socket(AF_INET , SOCK_STREAM , 0);
+        ssize_t read_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
 
-          if(t_server_socket == -1)
-                   exit_program();
+        if(read_size == 0)
+        {
+            //fprintf(stdout, "Connection lost : %d (%zu)\n", g_count_client, read_size);
+            add_first_element_list_int(g_list, g_count_client);
 
-          init_socket(t_server_socket);
+            g_count_client--;
 
-          struct sockaddr_in t_sockaddr_in_client;
+            close(g_connections[g_count_client]->a_socket);
 
-          int t_index;
+            pthread_exit(NULL);
+        }
+        else if(read_size == -1)
+        {
+            fprintf(stdout, "Connection lost : %d (%zu)\n", g_count_client, read_size);
 
-          while(1)
-          {
-                    t_index = size_list_int(g_list);
+            //add_first_element_list_int(g_list, g_count_client);
 
-                    //if(t_index == 0)
-                    t_index = 0;
-                    //else
-                    //          t_index = remove_first_element_list_int(g_list);
+            g_count_client--;
 
-                    int c = sizeof(struct sockaddr_in);
+            close(g_connections[g_count_client]->a_socket);
 
-                    g_sockets[t_index] = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) &c);
+            pthread_exit(NULL);
+        }
+        else
+        {
+            char t_buffer[BUFSIZ];
+            char t_buffer_int[BUFSIZ];
 
-                    if(g_sockets[t_index] == -1)
-                    {
-                             exit_program();
-                    }
+            pthread_mutex_init(&g_mutex, NULL);
 
-                    char t_receive_buffer[BUFSIZ];
+            pthread_mutex_lock(&g_mutex);
 
-                    ssize_t read_size = recv(g_sockets[g_count_client], t_receive_buffer, BUFSIZ, 0);
+            sprintf(t_buffer_int, "%d", t_index);
 
-                    if(read_size == 0)
-                    {
-                              //fprintf(stdout, "Connection lost : %d (%zu)\n", g_count_client, read_size);
-                              add_first_element_list_int(g_list, g_count_client);
+            strcpy(t_buffer, "New connection (");
+            strcat(t_buffer, t_buffer_int);
+            strcat(t_buffer, ") ");
+            strcat(t_buffer, " -> ");
+            strcat(t_buffer, t_receive_buffer);
 
-                              g_count_client--;
+            add_element_list_string(g_list_string, t_buffer);
 
-                              close(g_sockets[g_count_client]);
+            pthread_mutex_unlock(&g_mutex);
 
-                              pthread_exit(NULL);
-                    }
-                    else if(read_size == -1)
-                    {
-                              fprintf(stdout, "Connection lost : %d (%zu)\n", g_count_client, read_size);
+            adjust_list_string();
 
-                              //add_first_element_list_int(g_list, g_count_client);
+            print_textarea();
 
-                              g_count_client--;
+            memset(t_buffer, 0, BUFSIZ);
+            memset(t_receive_buffer, 0, BUFSIZ);
 
-                              close(g_sockets[g_count_client]);
+            if(pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_handler, &t_index) == -1)
+                exit_program();
+        }
 
-                              pthread_exit(NULL);
-                    }
-                    else
-                    {
-                        char t_buffer[BUFSIZ];
-
-                        pthread_mutex_init(&g_mutex, NULL);
-
-                        pthread_mutex_lock(&g_mutex);
-
-                        sprintf(t_buffer, "%d", g_count_client);
-                        strcat(t_buffer, " -> ");
-                        strcat(t_buffer, t_receive_buffer);
-
-                        add_element_list_string(g_list_string, t_buffer);
-
-                        pthread_mutex_unlock(&g_mutex);
-
-                        adjust_list_string();
-
-                        print_textarea();
-
-                        memset(t_buffer, 0, BUFSIZ);
-
-                        if(pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_function, &t_index) == -1)
-                                 exit_program();
-                    }
-
-                    g_count_client++;
-          }
+        g_count_client++;
+    }
 }
 
 void help()
@@ -336,7 +350,8 @@ void exit_program()
     free(g_window_textarea);
     free(g_window_form);
 
-    close(g_sockets[0]);
+    for(int t_index = 0; t_index < g_count_client; t_index++)
+        close(g_connections[t_index]->a_socket);
 
     perror("ERROR : ");
 
@@ -345,15 +360,19 @@ void exit_program()
 
 void initialize_services()
 {
-    g_services = malloc(10 * sizeof(struct SERVICE));
-
     for(int t_index = 0; t_index < 10; t_index++)
       g_services[t_index] = create_service();
 
-    g_services[0]->a_service_function = &(tchat_handler);
+    g_services[0]->a_service_handler = tchat_handler;
 }
 
-int main(int argc , char *argv[])
+void initialize_connections()
+{
+          for(int t_index = 0; t_index < 10; t_index++)
+               g_connections[t_index] = create_connection();
+}
+
+int main(int argc , char* argv[])
 {
           foo();
 

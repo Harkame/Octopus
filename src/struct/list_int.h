@@ -13,11 +13,17 @@ typedef struct LIST_INT
 
 struct LIST_INT* create_list_int();
 
-void add_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add);
+void add_last_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add);
 
 void add_first_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add);
 
-int remove_first_element_list_int(struct LIST_INT* p_list_int);
+void remove_element_list_int(struct LIST_INT* p_list_int, int p_index);
+
+void remove_element_list_int_aux(struct LIST_INT* p_list_int, int p_index, int p_count);
+
+int get_element_list_int(struct LIST_INT* p_list, int p_index);
+
+int get_element_list_int_aux(struct LIST_INT* p_list, int p_index, int p_count);
 
 int size_list_int(struct LIST_INT* p_list_int);
 

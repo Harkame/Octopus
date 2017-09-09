@@ -1,4 +1,4 @@
-#include "list.h"
+#include "list_int.h"
 
 struct LIST_INT* create_list_int()
 {
@@ -8,20 +8,6 @@ struct LIST_INT* create_list_int()
      r_list->a_next  = NULL;
 
      return r_list;
-}
-
-void add_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
-{
-     if(p_list_int->a_next == NULL)
-     {
-          p_list_int->a_value = p_value_to_add;
-
-          struct LIST_INT* t_list = create_list_int();
-
-          p_list_int->a_next = t_list;
-     }
-     else
-          add_element_list_int(p_list_int->a_next, p_value_to_add);
 }
 
 void add_first_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
@@ -37,22 +23,55 @@ void add_first_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
      p_list_int->a_next = t_list;
 }
 
-int remove_first_element_list_int(struct LIST_INT* p_list_int)
+void add_last_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
 {
      if(p_list_int->a_next == NULL)
-          return -1;
+     {
+          p_list_int->a_value = p_value_to_add;
 
-     int r_value = p_list_int->a_value;
+          struct LIST_INT* t_list = create_list_int();
 
-     p_list_int->a_value = p_list_int->a_next->a_value;
+          p_list_int->a_next = t_list;
+     }
+     else
+          add_last_element_list_int(p_list_int->a_next, p_value_to_add);
+}
 
-     struct LIST_INT* t_list = p_list_int->a_next->a_next;
+void remove_element_list_int(struct LIST_INT* p_list_int, int p_index)
+{
+     return remove_element_list_int_aux(p_list_int, p_index, 0);
+}
 
-     free(p_list_int->a_next);
+void remove_element_list_int_aux(struct LIST_INT* p_list_int, int p_index, int p_count)
+{
+     if(p_index == p_count)
+     {
+          if(p_list_int->a_next == NULL)
+               return;
 
-     p_list_int->a_next = t_list;
+          p_list_int->a_value = p_list_int->a_next->a_value;
 
-     return r_value;
+          struct LIST_INT* t_list = p_list_int->a_next->a_next;
+
+          free(p_list_int->a_next);
+
+          p_list_int->a_next = t_list;
+     }
+     else
+          return remove_element_list_int_aux(p_list_int->a_next, p_index, p_count + 1);
+}
+
+int get_element_list_int(struct LIST_INT* p_list, int p_index)
+{
+     return get_element_list_int_aux(p_list, p_index, 0);
+}
+
+int get_element_list_int_aux(struct LIST_INT* p_list, int p_index, int p_count)
+{
+     if(p_index == p_count)
+          return p_list->a_value;
+     else
+          return get_element_list_int_aux(p_list->a_next, p_index, p_count + 1);
 }
 
 int size_list_int(struct LIST_INT* p_list_int)

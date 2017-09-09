@@ -18,7 +18,7 @@ void add_element_list_string(struct LIST_STRING* p_LIST_STRING, char* p_value_to
 
 void add_first_element_list_string(struct LIST_STRING* p_LIST_STRING, char* p_value_to_add);
 
-char* remove_first_element_list_string(struct LIST_STRING* p_LIST_STRING);
+void remove_first_element_list_string(struct LIST_STRING* p_LIST_STRING);
 
 int size_list_string(struct LIST_STRING* p_LIST_STRING);
 

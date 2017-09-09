@@ -40,26 +40,18 @@ void add_first_element_list_string(struct LIST_STRING* p_list, char* p_value_to_
      p_list->a_next = t_list;
 }
 
-char* remove_first_element_list_string(struct LIST_STRING* p_list)
+void remove_first_element_list_string(struct LIST_STRING* p_list)
 {
      if(p_list->a_next == NULL)
-          return '\0';
-
-     char* r_value = malloc(255 * sizeof(char));
-     strcpy(r_value, p_list->a_value);
+          return;
 
      p_list->a_value = p_list->a_next->a_value;
 
      struct LIST_STRING* t_list = p_list->a_next->a_next;
 
-     //fprintf(stdout, "VALUE : %s\n", p_list->a_value);
-     //free(&p_list->a_value);
-
      free(p_list->a_next);
 
      p_list->a_next = t_list;
-
-     return r_value;
 }
 
 int size_list_string(struct LIST_STRING* p_list)

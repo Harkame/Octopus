@@ -1,9 +1,9 @@
-MKDIR      = mkdir -p
-GCC           = gcc -Wall -ansi -std=gnu99
-OPTIONS  = -pthread -D_GNU_SOURCE -lncurses
-LIBRARY   = -shared -fPIC
-SHARED    = ./bin/transfer/file_transfer.so ./bin/struct/list_int.so ./bin/struct/list_string.so ./bin/struct/input_line.so
-SERVICE    = ./bin/services/tchat.so
+MKDIR                       = mkdir -p
+GCC                           = gcc -Wall -ansi -std=gnu99
+OPTIONS                  = -pthread -D_GNU_SOURCE -lncurses
+LIBRARY_OPTIONS = -shared -fPIC
+LIBRARY_FILES        = ./bin/transfer/file_transfer.so ./bin/struct/list_int.so ./bin/struct/list_string.so ./bin/struct/input_line.so ./bin/struct/connection.so
+SERVICES_FILES        = ./bin/services/tchat.so
 
 all: directory file clean
 
@@ -14,38 +14,44 @@ directory:
 	${MKDIR} ./bin/struct;
 	${MKDIR} ./bin/services;
 
-file: shared services server client test
+file: library services server client test
 
 services:
-	${GCC} ./src/services/tchat.c ${OPTIONS} ${LIBRARY} -o ./bin/services/tchat.so;
+	${GCC} ./src/services/tchat.c ${OPTIONS} ${LIBRARY_OPTIONS} -o ./bin/services/tchat.so;
 
 server:
-	${GCC} ./src/server/server.c ${OPTIONS} ${SHARED} ${SERVICE} -o ./bin/server/server.o ;
+	${GCC} ./src/server/server.c ${OPTIONS} ${LIBRARY_FILES} ${SERVICES_FILES} -o ./bin/server/server.o ;
 
 client:
-	${GCC} ./src/client/client.c ${OPTIONS}  ${SHARED} -o ./bin/client/client.o;
+	${GCC} ./src/client/client.c ${OPTIONS}  ${LIBRARY_FILES} -o ./bin/client/client.o;
 
-shared: file_transfer struct
+library: file_transfer struct
 
 file_transfer:
-	${GCC} ./src/transfer/file_transfer.c -shared -fPIC -o ./bin/transfer/file_transfer.so;
+	${GCC} ./src/transfer/file_transfer.c ${LIBRARY_OPTIONS} -o ./bin/transfer/file_transfer.so;
 
-struct: list input_line
-
+# BEGIN STRUCT
+struct: list input_line connection
+# BEGIN LIST
 list: list_int list_string
 
-input_line:
-	${GCC} ./src/struct/input_line.c ${LIBRARY} ${OPTIONS} -o ./bin/struct/input_line.so;
-
 list_int:
-	${GCC} ./src/struct/list_int.c ${LIBRARY}  -o ./bin/struct/list_int.so;
+	${GCC} ./src/struct/list_int.c ${LIBRARY_OPTIONS}  -o ./bin/struct/list_int.so;
 
 list_string:
-	${GCC} ./src/struct/list_string.c ${LIBRARY}  -o ./bin/struct/list_string.so;
+	${GCC} ./src/struct/list_string.c ${LIBRARY_OPTIONS}  -o ./bin/struct/list_string.so;
+# END LIST
+
+input_line:
+	${GCC} ./src/struct/input_line.c ${LIBRARY_OPTIONS} ${OPTIONS} -o ./bin/struct/input_line.so;
+
+connection:
+	${GCC} ./src/struct/connection.c ${LIBRARY_OPTIONS}  -o ./bin/struct/connection.so;
+# END STRUCT
 
 test:
-	${GCC} ./test/struct/test_list_string.c ${SHARED} -o ./test/struct/test_list_string.o;
+	${GCC} ./test/struct/test_list_string.c ${LIBRARY_FILES} -o ./test/struct/test_list_string.o;
 
 clean:
-		rm -rf ./src/*.gch;
-		rm -rf ./test/*.gch;
+	rm -rf ./src/*/*.gch;
+	rm -rf ./test/*/*.gch;

@@ -25,15 +25,16 @@
 #include <features.h>
 #include <curses.h>
 
-
-#include "../transfer/file_transfer.h"
 #include "../struct/list_int.h"
 #include "../struct/list_string.h"
 #include "../struct/input_line.h"
+#include "../struct/connection.h"
 
 #include "../services/tchat.h"
 
-#define DEFAULT_VALUE_IP "127.0.0.1"
+#include "../transfer/file_transfer.h"
+
+
 #define DEFAULT_VALUE_PORT 6666
 
 #define PROMPT_MESSAGE "> "
@@ -44,7 +45,7 @@ typedef struct SERVICE
 {
      char* a_service_name;
 
-     void (*a_service_function)(int*);
+     void (*a_service_handler)(int*);
 } SERVICE;
 
 typedef struct OPTION
@@ -56,8 +57,7 @@ typedef struct OPTION
 
 int g_port = DEFAULT_VALUE_PORT;
 
-char g_services_names[10];
-void* g_services_handler[10];
+struct CONNECTION* g_connections[10];
 
 WINDOW* g_window_textarea;
 WINDOW* g_window_form;
@@ -72,35 +72,42 @@ pthread_t g_threads [10];
 
 struct LIST_INT* g_list;
 
-int g_sockets[10];
-
-struct SERVICE** g_services;
+struct SERVICE* g_services[10];
 
 int g_count_client = 0;
 
+/*
+* (Begin) initializations
+*/
 void initialize_windows();
 
 void initialize_services();
 
+void initialize_connections();
 /*
-* Protected by g_mutex
+* (End) initializations
+*/
+
+/*
+* /!\ Protected by g_mutex
 */
 void refresh_windows();
 
 /*
-* Protected by g_mutex
+* /!\ Protected by g_mutex
 */
 void adjust_list_string();
 
 /*
-* Protected by g_mutex
+* /!\ Protected by g_mutex
 */
 void print_textarea();
 
 void read_command_parameters();
 
 void help();
-
 void exit_program();
+
+int main(int argc , char* argv[]);
 
 #endif
