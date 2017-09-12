@@ -193,7 +193,37 @@ void foo()
 
         int c = sizeof(struct sockaddr_in);
 
-        g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) &c);
+        fd_set set, settmp ;
+        FD_ZERO(&set) ; FD_SET(server_socket, &set) ;
+        int max = server_socket ;
+        while(1)
+        {
+            settmp = set ;
+            select(max+1, &settmp, NULL, NULL, NULL) ;
+            for(int df= 2 ; df <= max ; df++)
+            {
+                if (!FD_ISSET(df, &settmp))
+                continue;
+                if (df == server_socket)
+                {
+                    g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) &c);
+                    if (g_connections[t_index]->a_socket < 0)
+                        error("accept failed");
+
+                    printf("nouveau client connecté: %d\n", dSC);
+                    FD_SET(dSC, &set) ;
+                    if (max < g_connections[t_index]->a_socket)
+                    max = g_connections[t_index]->a_socket ;
+                    continue ;
+                }
+                if (recv(df, &message, MSG_LENGTH, 0) <= 0)
+                {
+                    FD_CLR(df, &set) ;
+                    close(df);
+                    continue ;
+                }
+            }
+        }
 
         if(g_connections[t_index]->a_socket == -1)
             exit_program();
