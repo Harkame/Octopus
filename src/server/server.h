@@ -64,7 +64,7 @@ WINDOW* g_window_form;
 
 struct LIST_STRING* g_list_string;
 
-pthread_mutex_t g_mutex;
+pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_t g_command_thread;;
 

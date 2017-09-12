@@ -48,7 +48,6 @@ void* write_handler()
     while(1)
     {
         move(LINES - 2, 1);
-        mvwprintw(g_window_form, 1, 1, PROMPT_MESSAGE);
         char line[BUFSIZ];
         int len = get_line_non_blocking(&linep_bufferfer, line, BUFSIZ);
         if(len > 0)
@@ -56,37 +55,31 @@ void* write_handler()
             if(strcmp(line, "exit") == 0)
                 exit_program();
 
-            pthread_mutex_init(&g_mutex, NULL);
-
             pthread_mutex_lock(&g_mutex);
+
             add_element_list_string(g_list_string, line);
 
             if(size_list_string(g_list_string) > 10)
                 remove_first_element_list_string(g_list_string);
             pthread_mutex_unlock(&g_mutex);
+            pthread_mutex_destroy(&g_mutex);
 
             if(send(g_socket, line, strlen(line), 0) == -1)
             {
                 perror("send");
 
-                exit_program();
+                //exit_program();
             }
 
             print_textarea();
 
-            lines_read ++;
+            lines_read++;
 
             move(LINES - 2, 1);
             clrtoeol();
         }
 
         render_line(&linep_bufferfer);
-
-        pthread_mutex_lock(&g_mutex);
-        wrefresh(g_window_textarea);
-        wrefresh(g_window_form);
-        refresh();
-        pthread_mutex_unlock(&g_mutex);
     }
 }
 
@@ -157,8 +150,6 @@ void print_textarea()
     char** t_buffer;
     t_buffer = alloca(size_list_string(g_list_string) * sizeof(char*));
 
-    pthread_mutex_init(&g_mutex, NULL);
-
     pthread_mutex_lock(&g_mutex);
 
     for(int t_index; t_index < size_list_string(g_list_string); t_index++)
@@ -189,8 +180,8 @@ void initialize_windows()
     intrflush(stdscr, 0);
     leaveok(stdscr, 1);
 
-    g_window_textarea = subwin(stdscr, LINES - 5, COLS - 1, 0, 0);
-    g_window_form       = subwin(stdscr, LINES / 16, COLS - 1,  LINES - 3, 0);
+    g_window_textarea = subwin(stdscr, LINES / 3, COLS - 1, 1, 0);
+    g_window_form     = subwin(stdscr, 3,  COLS - 1,  LINES - 3, 0);
 
     box(g_window_textarea, ACS_VLINE, ACS_HLINE);
     box(g_window_form, ACS_VLINE, ACS_HLINE);
@@ -198,8 +189,6 @@ void initialize_windows()
 
 void refresh_windows()
 {
-    pthread_mutex_init(&g_mutex, NULL);
-
     pthread_mutex_lock(&g_mutex);
 
     box(g_window_textarea, ACS_VLINE, ACS_HLINE);
@@ -213,11 +202,9 @@ void refresh_windows()
 
 void adjust_list_string()
 {
-    pthread_mutex_init(&g_mutex, NULL);
-
     pthread_mutex_lock(&g_mutex);
 
-    if(size_list_string(g_list_string) > (LINES - 7))
+    if(size_list_string(g_list_string) > (LINES / 3) - 3)
         remove_first_element_list_string(g_list_string);
 
     pthread_mutex_unlock(&g_mutex);

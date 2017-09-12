@@ -49,7 +49,7 @@ void remove_first_element_list_string(struct LIST_STRING* p_list)
 
      struct LIST_STRING* t_list = p_list->a_next->a_next;
 
-     free(p_list->a_next);
+     //free(p_list->a_next);
 
      p_list->a_next = t_list;
 }

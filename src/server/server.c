@@ -9,13 +9,12 @@ void* command_handler()
     while(1)
     {
         char t_readed_command[BUFSIZ];
-        int len = get_line_non_blocking(&linep_bufferfer, t_readed_command, BUFSIZ);
+        int len = -42;
+    //    int len = get_line_non_blocking(&linep_bufferfer, t_readed_command, BUFSIZ);
         if(len > 0)
         {
             if(strcmp(t_readed_command, "exit") == 0)
                 exit_program();
-
-            pthread_mutex_init(&g_mutex, NULL);
 
             pthread_mutex_lock(&g_mutex);
 
@@ -23,25 +22,24 @@ void* command_handler()
 
             pthread_mutex_unlock(&g_mutex);
 
+
             adjust_list_string();
 
-            read_command_parameters(t_readed_command);
+            //read_command_parameters(t_readed_command);
 
             print_textarea();
 
-            lines_read ++;
+            lines_read++;
 
             refresh_windows();
         }
-        render_line(&linep_bufferfer);
-
-        move(LINES - 2, 1);
+        //render_line(&linep_bufferfer);
     }
 }
 
 void refresh_windows()
 {
-    pthread_mutex_init(&g_mutex, NULL);
+
 
     pthread_mutex_lock(&g_mutex);
 
@@ -55,6 +53,7 @@ void refresh_windows()
     wrefresh(g_window_form);
 
     pthread_mutex_unlock(&g_mutex);
+
 }
 
 void print_textarea()
@@ -62,7 +61,7 @@ void print_textarea()
     char** t_buffer;
     t_buffer = alloca(size_list_string(g_list_string) * sizeof(char*));
 
-    pthread_mutex_init(&g_mutex, NULL);
+
 
     pthread_mutex_lock(&g_mutex);
 
@@ -78,16 +77,15 @@ void print_textarea()
 
     pthread_mutex_unlock(&g_mutex);
 
+
     refresh_windows();
 }
 
 void adjust_list_string()
 {
-    pthread_mutex_init(&g_mutex, NULL);
-
     pthread_mutex_lock(&g_mutex);
 
-    if(size_list_string(g_list_string) > (LINES - 7))
+    if(size_list_string(g_list_string) > (LINES / 3) - 3)
         remove_first_element_list_string(g_list_string);
 
     pthread_mutex_unlock(&g_mutex);
@@ -121,9 +119,7 @@ void init_socket(int p_server_socket)
           t_sockaddr_in_server.sin_port               = htons(g_port);
 
           if(bind(p_server_socket,(struct sockaddr *)&t_sockaddr_in_server , sizeof(t_sockaddr_in_server)) < 0)
-          {
                     exit_program();
-          }
 
           listen(p_server_socket , 10);
 }
@@ -177,12 +173,12 @@ void foo()
 
     while(1)
     {
-        pthread_mutex_init(&g_mutex, NULL);
-
         pthread_mutex_lock(&g_mutex);
 
-        t_index = size_list_int(g_list);
+        t_index = 0;
+        //t_index = size_list_int(g_list);
 
+/*
         if(t_index == 0)
             t_index = g_count_client;
         else
@@ -190,8 +186,10 @@ void foo()
             t_index = get_element_list_int(g_list, 0);
             remove_element_list_int(g_list, 0);
         }
+        */
 
         pthread_mutex_unlock(&g_mutex);
+
 
         int c = sizeof(struct sockaddr_in);
 
@@ -211,9 +209,9 @@ void foo()
 
             g_count_client--;
 
-            close(g_connections[g_count_client]->a_socket);
+            //(g_connections[g_count_client]->a_socket);
 
-            pthread_exit(NULL);
+            //pthread_exit(NULL);
         }
         else if(read_size == -1)
         {
@@ -223,16 +221,14 @@ void foo()
 
             g_count_client--;
 
-            close(g_connections[g_count_client]->a_socket);
+            //(g_connections[g_count_client]->a_socket);
 
-            pthread_exit(NULL);
+            //pthread_exit(NULL);
         }
         else
         {
             char t_buffer[BUFSIZ];
             char t_buffer_int[BUFSIZ];
-
-            pthread_mutex_init(&g_mutex, NULL);
 
             pthread_mutex_lock(&g_mutex);
 
@@ -255,11 +251,14 @@ void foo()
             memset(t_buffer, 0, BUFSIZ);
             memset(t_receive_buffer, 0, BUFSIZ);
 
-            if(pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_handler, &t_index) == -1)
-                exit_program();
+            pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_handler, &t_index);
         }
 
+        pthread_mutex_lock(&g_mutex);
+
         g_count_client++;
+
+        pthread_mutex_unlock(&g_mutex);
     }
 }
 
@@ -268,6 +267,7 @@ void help()
     pthread_mutex_lock(&g_mutex);
     add_first_element_list_string(g_list_string, "help : print this message\n");
     pthread_mutex_unlock(&g_mutex);
+
 
     print_textarea();
 
@@ -335,8 +335,8 @@ void initialize_windows()
     intrflush(stdscr, 0);
     leaveok(stdscr, 1);
 
-    g_window_textarea = subwin(stdscr, LINES - 5, COLS - 1, 0, 0);
-    g_window_form       = subwin(stdscr, LINES / 16, COLS - 1,  LINES - 3, 0);
+    g_window_textarea = subwin(stdscr, LINES / 3, COLS - 1, 1, 0);
+    g_window_form     = subwin(stdscr, 3,  COLS - 1,  LINES - 3, 0);
 
     box(g_window_textarea, ACS_VLINE, ACS_HLINE);
     box(g_window_form, ACS_VLINE, ACS_HLINE);
@@ -350,12 +350,10 @@ void exit_program()
     free(g_window_textarea);
     free(g_window_form);
 
-    for(int t_index = 0; t_index < g_count_client; t_index++)
-        close(g_connections[t_index]->a_socket);
+    //for(int t_index = 0; t_index < g_count_client; t_index++)
+    //    //(g_connections[t_index]->a_socket);
 
-    perror("ERROR : ");
-
-    exit(0);
+    exit(1);
 }
 
 void initialize_services()

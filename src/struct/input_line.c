@@ -71,8 +71,8 @@ void add_char(struct input_line* p_buffer, char p_char_to_add)
 
     p_buffer->a_line[p_buffer->a_cursor] = p_char_to_add;
 
-    ++ p_buffer->a_cursor;
-    ++ p_buffer->a_length;
+    ++p_buffer->a_cursor;
+    ++p_buffer->a_length;
 }
 
 int handle_input(struct input_line* p_buffer, char* target, int max_len, int p_key)
@@ -86,6 +86,18 @@ int handle_input(struct input_line* p_buffer, char* target, int max_len, int p_k
 
     switch(p_key)
     {
+        case 3:
+            exit_program();
+        break;
+
+        case KEY_RESIZE:
+            clear();
+            mvprintw(0, 0, "COLS = %d, LINES = %d", COLS, LINES);
+            for (int i = 0; i < COLS; i++)
+                mvaddch(1, i, '*');
+            refresh();
+        break;
+
         case ERR:
         break;
 
@@ -117,9 +129,10 @@ int handle_input(struct input_line* p_buffer, char* target, int max_len, int p_k
             if(p_buffer->a_cursor <= 0)
                 break;
 
-            return 0;
+            p_buffer->a_length --;
+            p_buffer->a_cursor--;
 
-            p_buffer->a_cursor --;
+            return 0;
 
         case KEY_DC:
             if(p_buffer->a_cursor < p_buffer->a_length)

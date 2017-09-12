@@ -7,7 +7,7 @@ typedef struct CONNECTION
 {
      struct socket* a_socket;
 
-     short a_state;
+     int a_state;
 
 } CONNECTION;
 
