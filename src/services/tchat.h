@@ -3,6 +3,6 @@
 
 #include "../server/server.h"
 
-void tchat_handler(int* p_client_number);
+void* tchat_handler(void* p_client_number);
 
 #endif

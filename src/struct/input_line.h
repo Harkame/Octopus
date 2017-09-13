@@ -26,4 +26,10 @@ int get_line_non_blocking(struct input_line *p_buffer, char *target, int max_len
 
 void print_textarea();
 
+void refresh_windows();
+
+void exit_program();
+
+void re_initialize_windows();
+
 #endif

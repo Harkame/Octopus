@@ -28,7 +28,8 @@ void send_file(const int p_socket, FILE* p_file_to_send)
           while(t_rest_to_send > 0)
           {
                     memset(t_buffer, 0, BUFSIZ);
-                    fread(t_buffer,BUFSIZ,1, p_file_to_send);
+                    if(fread(t_buffer,BUFSIZ,1, p_file_to_send) == NULL)
+                         exit(1);
 
                     t_bytes_sended = send(p_socket, t_buffer, BUFSIZ, 0);
 
@@ -52,7 +53,8 @@ void receive_file(const int p_socket, const char* p_directory)
           return;
      }
 
-     freopen(NULL, "w+", t_file_to_receive);
+     if(freopen(NULL, "w+", t_file_to_receive) == NULL)
+          exit(1);
 
      memset(t_buffer, 0, BUFSIZ);
 
@@ -77,29 +79,30 @@ void receive_file(const int p_socket, const char* p_directory)
           return;
      }
 
-     int t_rest_to_receive = t_file_size;
-     ssize_t len;
+     ssize_t t_rest_to_receive = t_file_size;
+     ssize_t t_sended_length;
 
      while(t_rest_to_receive > 0)
      {
-          len = recv(p_socket, t_buffer, BUFSIZ, 0);
+          t_sended_length = recv(p_socket, t_buffer, BUFSIZ, 0);
 
-          switch(len)
+          switch(t_sended_length)
           {
                case 0:
                     //errno = 1;
                     return;
                break;
+
                case -1:
                     //errno = 1;
                     return;
                break;
           }
 
-          if(fwrite(t_buffer, sizeof(char), len, t_file_to_receive) != len)
+          if(fwrite(t_buffer, sizeof(char), len, t_file_to_receive) != t_sended_length)
                     fprintf(stderr, "error fwrite\n");
 
-          t_rest_to_receive -= len;
+          t_rest_to_receive -= t_sended_length;
      }
 }
 

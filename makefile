@@ -1,9 +1,9 @@
-MKDIR                       = mkdir -p
-GCC                           = gcc -Wall -ansi -std=gnu99
-OPTIONS                  = -pthread -D_GNU_SOURCE -lncurses
+MKDIR           = mkdir -p
+GCC             = gcc -W -Wall -ansi -std=gnu99 -O3
+OPTIONS         = -pthread -D_GNU_SOURCE -lncurses
 LIBRARY_OPTIONS = -shared -fPIC
-LIBRARY_FILES        = ./bin/transfer/file_transfer.so ./bin/struct/list_int.so ./bin/struct/list_string.so ./bin/struct/input_line.so ./bin/struct/connection.so
-SERVICES_FILES        = ./bin/services/tchat.so
+LIBRARY_FILES   = ./bin/transfer/file_transfer.so ./bin/struct/list_int.so ./bin/struct/list_string.so ./bin/struct/input_line.so ./bin/struct/connection.so
+SERVICES_FILES  = ./bin/services/tchat.so
 
 all: directory file clean
 

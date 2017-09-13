@@ -61,10 +61,10 @@ void* write_handler()
 
             if(size_list_string(g_list_string) > 10)
                 remove_first_element_list_string(g_list_string);
-            pthread_mutex_unlock(&g_mutex);
-            pthread_mutex_destroy(&g_mutex);
 
-            if(send(g_socket, line, strlen(line), 0) == -1)
+            pthread_mutex_unlock(&g_mutex);
+
+            if(send(g_socket, line, strlen(line), 0) <= 0)
             {
                 perror("send");
 
@@ -87,12 +87,26 @@ void exit_program()
 {
     endwin();
 
-    free(g_window_textarea);
-    free(g_window_form);
+    erase();
 
     close(g_socket);
 
     exit(0);
+}
+
+void re_initialize_windows()
+{
+    pthread_mutex_lock(&g_mutex);
+
+    erase();
+
+    g_window_textarea = subwin(stdscr, LINES / 3, COLS - 1, 1, 0);
+    g_window_form     = subwin(stdscr, 3,  COLS - 1,  LINES - 3, 0);
+
+    box(g_window_textarea, ACS_VLINE, ACS_HLINE);
+    box(g_window_form, ACS_VLINE, ACS_HLINE);
+
+    pthread_mutex_unlock(&g_mutex);
 }
 
 void foo()
@@ -114,8 +128,8 @@ void foo()
      }
 
      t_sockaddr_in_client.sin_addr.s_addr = inet_addr(g_ip);
-     t_sockaddr_in_client.sin_family            = AF_INET;
-     t_sockaddr_in_client.sin_port               = htons(g_port);
+     t_sockaddr_in_client.sin_family      = AF_INET;
+     t_sockaddr_in_client.sin_port        = htons(g_port);
 
      if(connect(g_socket , (struct sockaddr *)&t_sockaddr_in_client, sizeof(t_sockaddr_in_client)) < 0)
      {
@@ -152,7 +166,7 @@ void print_textarea()
 
     pthread_mutex_lock(&g_mutex);
 
-    for(int t_index; t_index < size_list_string(g_list_string); t_index++)
+    for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
          t_buffer[t_index] = alloca(50 * sizeof(char));
 
     list_string_to_array(g_list_string, t_buffer, 0, size_list_string(g_list_string));
@@ -210,7 +224,9 @@ void adjust_list_string()
     pthread_mutex_unlock(&g_mutex);
 }
 
-int main(int argc , char** argv)
+int main()
 {
      foo();
+
+     return 0;
 }

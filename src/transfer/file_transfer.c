@@ -6,7 +6,7 @@ void send_file(const int p_socket, FILE* p_file_to_send)
 
           if(stat((char*) p_file_to_send, &t_stat) == -1)
           {
-                    perror("fstat");
+                    //errno = 1;
 
                     return;
           }
@@ -15,7 +15,7 @@ void send_file(const int p_socket, FILE* p_file_to_send)
 
           if(send(p_socket, t_file_size, t_stat.st_size, 0) == -1)
           {
-                    perror("send");
+                    //errno = 1;
 
                     return;
           }
@@ -28,7 +28,8 @@ void send_file(const int p_socket, FILE* p_file_to_send)
           while(t_rest_to_send > 0)
           {
                     memset(t_buffer, 0, BUFSIZ);
-                    fread(t_buffer,BUFSIZ,1, p_file_to_send);
+                    if(fread(t_buffer,BUFSIZ,1, p_file_to_send) == 0)
+                         exit(1);
 
                     t_bytes_sended = send(p_socket, t_buffer, BUFSIZ, 0);
 
@@ -47,12 +48,13 @@ void receive_file(const int p_socket, const char* p_directory)
 
      if(t_file_to_receive == NULL)
      {
-          perror("fopen");
+          //errno = 1;
 
           return;
      }
 
-     freopen(NULL, "w+", t_file_to_receive);
+     if(freopen(NULL, "w+", t_file_to_receive) == NULL)
+          exit(1);
 
      memset(t_buffer, 0, BUFSIZ);
 
@@ -68,38 +70,39 @@ void receive_file(const int p_socket, const char* p_directory)
 
      if(t_file_size == -1)
      {
-          fprintf(stderr, "(%s) not exist\n", t_file_name);
+          //errno = 1;
           return;
      }
      else if(t_file_size == 0)
      {
-          fprintf(stderr, "(%s) is empty\n", t_file_name);
+          //errno = 1;
           return;
      }
 
-     int t_rest_to_receive = t_file_size;
-     ssize_t len;
+     size_t t_rest_to_receive = t_file_size;
+     size_t t_receved_length;
 
      while(t_rest_to_receive > 0)
      {
-          len = recv(p_socket, t_buffer, BUFSIZ, 0);
+          t_receved_length = recv(p_socket, t_buffer, BUFSIZ, 0);
 
-          switch(len)
+          switch(t_receved_length)
           {
                case 0:
-                    fprintf(stderr, "Connexion lost\n");
+                    //errno = 1;
                     return;
                break;
+
                case -1:
-                    perror("recv");
+                    //errno = 1;
                     return;
                break;
           }
 
-          if(fwrite(t_buffer, sizeof(char), len, t_file_to_receive) != len)
+          if(fwrite(t_buffer, sizeof(char), t_receved_length, t_file_to_receive) != t_receved_length)
                     fprintf(stderr, "error fwrite\n");
 
-          t_rest_to_receive -= len;
+          t_rest_to_receive -= t_receved_length;
      }
 }
 
@@ -109,7 +112,7 @@ void send_directory(const int p_socket, const char* p_directory_path_to_send)
 
      if(t_directory_to_send == NULL)
      {
-          perror("opendir");
+          //errno = 1;
           return;
      }
 
@@ -127,34 +130,23 @@ void send_directory(const int p_socket, const char* p_directory_path_to_send)
                if(t_directory_entry->d_type == DT_DIR)
                {
                     strcat(t_buffer, "/");
-
-                    fprintf(stdout, "SEND DIRECTORY: %s\n", t_buffer);
-
                     send(p_socket, t_buffer, strlen(t_buffer) * sizeof(char), 0);
 
                     send_directory(p_socket, t_buffer);
-
-                    memset(t_buffer, 0, BUFSIZ);
                }
                else
                {
                     strcat(t_buffer, t_directory_entry->d_name);
                     send(p_socket, t_buffer, strlen(t_buffer) * sizeof(char), 0);
-
-                    fprintf(stdout, "SEND FILE : %s\n", t_buffer);
-
                     FILE* t_file_to_receive = fopen(t_buffer, "w");
 
                     if(t_file_to_receive == NULL)
                     {
-                         perror("fopen");
-
+                         //errno = 1;
                          return;
                     }
 
                     send_file(p_socket, t_file_to_receive);
-
-                    memset(t_buffer, 0, BUFSIZ);
                }
           }
      }

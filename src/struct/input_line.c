@@ -86,16 +86,12 @@ int handle_input(struct input_line* p_buffer, char* target, int max_len, int p_k
 
     switch(p_key)
     {
-        case 3:
-            exit_program();
-        break;
-
         case KEY_RESIZE:
-            clear();
-            mvprintw(0, 0, "COLS = %d, LINES = %d", COLS, LINES);
-            for (int i = 0; i < COLS; i++)
-                mvaddch(1, i, '*');
-            refresh();
+            re_initialize_windows();
+
+            refresh_windows();
+
+            print_textarea();
         break;
 
         case ERR:

@@ -45,7 +45,7 @@ typedef struct SERVICE
 {
      char* a_service_name;
 
-     void (*a_service_handler)(int*);
+     void* (*a_service_handler)(void*);
 } SERVICE;
 
 typedef struct OPTION
@@ -84,6 +84,17 @@ void initialize_windows();
 void initialize_services();
 
 void initialize_connections();
+
+void initialize_server_socket(int p_server_socket_to_initialize);
+
+/*
+* /!\ Protected by g_mutex
+*
+* Used for resize windows
+*
+*/
+void re_initialize_windows();
+
 /*
 * (End) initializations
 */
@@ -108,6 +119,8 @@ void read_command_parameters();
 void help();
 void exit_program();
 
-int main(int argc , char* argv[]);
+void* command_handler();
+
+int main();
 
 #endif

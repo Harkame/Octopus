@@ -17,7 +17,7 @@ int test_list_string_to_array()
      char** t_buffer;
     t_buffer = alloca(15 * sizeof(char*));
 
-    for(int t_index; t_index < 15; t_index++)
+    for(int t_index = 0; t_index < 15; t_index++)
          t_buffer[t_index] = alloca(50 * sizeof(char));
 
      list_string_to_array(t_list_string, t_buffer, 0, 3);
