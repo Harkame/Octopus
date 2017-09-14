@@ -72,7 +72,7 @@ void* tchat_handler(void* p_client_number)
           }
           else
           {
-               char t_buffer[BUFSIZ];
+               char t_buffer[BUFSIZ] = {'\0'};
 
                sprintf(t_buffer, "%d", t_client_number);
 
@@ -81,7 +81,7 @@ void* tchat_handler(void* p_client_number)
 
                pthread_mutex_lock(&g_mutex);
 
-               add_element_list_string(g_list_string, t_buffer);
+               add_element_list_string(g_list_string,t_buffer);
 
                pthread_mutex_unlock(&g_mutex);
 

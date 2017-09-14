@@ -14,7 +14,7 @@ directory:
 	${MKDIR} ./bin/struct;
 	${MKDIR} ./bin/services;
 
-file: library services server client test
+file: library services server client
 
 services:
 	${GCC} ./src/services/tchat.c ${OPTIONS} ${LIBRARY_OPTIONS} -o ./bin/services/tchat.so;

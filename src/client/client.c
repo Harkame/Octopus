@@ -2,19 +2,19 @@
 
 void* read_handler()
 {
-    char t_buffer[BUFSIZ];
+    char t_readed_buffer[BUFSIZ];
 
     while(1)
     {
-        ssize_t read_size = recv(g_socket, t_buffer, BUFSIZ, 0);
+        ssize_t t_readed_size = recv(g_socket, t_readed_buffer, BUFSIZ, 0);
 
-        if(read_size == 0)
+        if(t_readed_size == 0)
         {
             fprintf(stdout, "Connection lost\n");
 
             exit_program();
         }
-        else if(read_size == -1)
+        else if(t_readed_size == -1)
         {
             fprintf(stdout, "Connection lost\n");
 
@@ -23,18 +23,18 @@ void* read_handler()
         else
         {
             pthread_mutex_lock(&g_mutex);
-            add_element_list_string(g_list_string, t_buffer);
 
-            if(size_list_string(g_list_string) > 10)
-                remove_first_element_list_string(g_list_string);
+            add_element_list_string(g_list_string, t_readed_buffer);
+
             pthread_mutex_unlock(&g_mutex);
+
+            adjust_list_string();
 
             print_textarea();
 
-            memset(t_buffer, 0, BUFSIZ);
+            refresh_windows();
 
-            move(LINES - 2, 1);
-            clrtoeol();
+            memset(t_readed_buffer, 0, BUFSIZ);
         }
     }
 }
@@ -44,42 +44,39 @@ void* write_handler()
     struct input_line linep_bufferfer;
     make_input_line(&linep_bufferfer);
 
-    int lines_read = 0;
     while(1)
     {
-        move(LINES - 2, 1);
-        char line[BUFSIZ];
-        int len = get_line_non_blocking(&linep_bufferfer, line, BUFSIZ);
-        if(len > 0)
+        char t_readed_line[BUFSIZ];
+
+        int t_readed_length = get_line_non_blocking(&linep_bufferfer, t_readed_line, BUFSIZ);
+
+        if(t_readed_length > 0)
         {
-            if(strcmp(line, "exit") == 0)
+            if(strcmp(t_readed_line, "exit") == 0)
                 exit_program();
 
             pthread_mutex_lock(&g_mutex);
 
-            add_element_list_string(g_list_string, line);
-
-            if(size_list_string(g_list_string) > 10)
-                remove_first_element_list_string(g_list_string);
+            add_element_list_string(g_list_string, t_readed_line);
 
             pthread_mutex_unlock(&g_mutex);
 
-            if(send(g_socket, line, strlen(line), 0) <= 0)
-            {
-                perror("send");
-
-                //exit_program();
-            }
+            adjust_list_string();
 
             print_textarea();
 
-            lines_read++;
+            send(g_socket, t_readed_line, strlen(t_readed_line), 0);
 
-            move(LINES - 2, 1);
-            clrtoeol();
+            refresh_windows();
         }
 
         render_line(&linep_bufferfer);
+
+        pthread_mutex_lock(&g_mutex);
+
+        move(LINES - 2, 1);
+
+        pthread_mutex_unlock(&g_mutex);
     }
 }
 
@@ -161,24 +158,31 @@ void help()
 
 void print_textarea()
 {
-    char** t_buffer;
-    t_buffer = alloca(size_list_string(g_list_string) * sizeof(char*));
-
     pthread_mutex_lock(&g_mutex);
 
+    char* t_buffer[size_list_string(g_list_string)];
+
     for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
-         t_buffer[t_index] = alloca(50 * sizeof(char));
+        t_buffer[t_index] = alloca(50 * sizeof(char));
 
     list_string_to_array(g_list_string, t_buffer, 0, size_list_string(g_list_string));
 
-     wclear(g_window_textarea);
+    wclear(g_window_textarea);
 
-     for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
-         mvwprintw(g_window_textarea,1 + t_index, 1, t_buffer[t_index]);
+    for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
+        mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]);
 
     pthread_mutex_unlock(&g_mutex);
+}
 
-    refresh_windows();
+void adjust_list_string()
+{
+    pthread_mutex_lock(&g_mutex);
+
+    if(size_list_string(g_list_string) > (LINES / 3) - 3)
+        remove_first_element_list_string(g_list_string);
+
+    pthread_mutex_unlock(&g_mutex);
 }
 
 void initialize_windows()
@@ -211,15 +215,9 @@ void refresh_windows()
     wrefresh(g_window_textarea);
     wrefresh(g_window_form);
 
-    pthread_mutex_unlock(&g_mutex);
-}
+    refresh();
 
-void adjust_list_string()
-{
-    pthread_mutex_lock(&g_mutex);
-
-    if(size_list_string(g_list_string) > (LINES / 3) - 3)
-        remove_first_element_list_string(g_list_string);
+    move(LINES - 2, 1);
 
     pthread_mutex_unlock(&g_mutex);
 }

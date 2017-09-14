@@ -32,7 +32,13 @@ void* command_handler()
         }
 
         render_line(&linep_bufferfer);
+
+
+        pthread_mutex_lock(&g_mutex);
+
         move(LINES - 2, 1);
+
+        pthread_mutex_unlock(&g_mutex);
     }
 
     return NULL;
@@ -42,39 +48,36 @@ void refresh_windows()
 {
     pthread_mutex_lock(&g_mutex);
 
-    move(LINES - 2, 1);
-
     box(g_window_textarea, ACS_VLINE, ACS_HLINE);
     box(g_window_form, ACS_VLINE, ACS_HLINE);
 
     wrefresh(g_window_textarea);
     wrefresh(g_window_form);
 
+    refresh();
+
+    move(LINES - 2, 1);
+
     pthread_mutex_unlock(&g_mutex);
 }
 
 void print_textarea()
 {
-    char** t_buffer;
-
     pthread_mutex_lock(&g_mutex);
 
-    t_buffer = alloca(size_list_string(g_list_string) * sizeof(char*));
+    char* t_buffer[size_list_string(g_list_string)];
 
     for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
-         t_buffer[t_index] = alloca(50 * sizeof(char));
+        t_buffer[t_index] = alloca(50 * sizeof(char));
 
     list_string_to_array(g_list_string, t_buffer, 0, size_list_string(g_list_string));
 
     wclear(g_window_textarea);
 
     for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
-        mvwprintw(g_window_textarea,1 + t_index, 1, t_buffer[t_index]);
+        mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]);
 
     pthread_mutex_unlock(&g_mutex);
-
-
-    refresh_windows();
 }
 
 void adjust_list_string()
@@ -184,8 +187,9 @@ void foo()
 
         g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) &c);
 
-        ssize_t read_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
+    //    ssize_t read_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
 
+        int read_size = 12;
         if(read_size == 0)
         {
             pthread_mutex_lock(&g_mutex);
@@ -223,7 +227,7 @@ void foo()
             strcat(t_buffer, t_buffer_int);
             strcat(t_buffer, ") ");
             strcat(t_buffer, " -> ");
-            strcat(t_buffer, t_receive_buffer);
+        //    strcat(t_buffer, t_receive_buffer);
 
             pthread_mutex_lock(&g_mutex);
 
@@ -234,6 +238,8 @@ void foo()
             adjust_list_string();
 
             print_textarea();
+
+            refresh_windows();
 
             pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_handler, &t_index);
         }
@@ -248,14 +254,7 @@ void foo()
 
 void help()
 {
-    pthread_mutex_lock(&g_mutex);
-    add_first_element_list_string(g_list_string, "help : print this message\n");
-    pthread_mutex_unlock(&g_mutex);
 
-
-    print_textarea();
-
-    exit_program();
 }
 
 void read_command_parameters(char* p_command_to_read)

@@ -84,6 +84,8 @@ void exit_program();
 
 void print_textarea();
 
+void adjust_list_string();
+
 int main();
 
 #endif
