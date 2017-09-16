@@ -45,6 +45,10 @@
 #define HELP_OPTION_DIRECTORY "-d directory\n"
 #define HELP_OPTION_PORT             "-p port\n"
 
+#define PARAMETERS_HELP "help"
+#define PARAMETERS_PORT "port"
+#define PARAMETERS_IP "ip"
+
 #define EXIT_MESSAGE "exit"
 
 int g_socket;
@@ -77,6 +81,8 @@ void initialize_windows();
 */
 void re_initialize_windows();
 
+void initialize_options(int, char**);
+
 void refresh_windows();
 
 void exit_program();
@@ -85,6 +91,6 @@ void print_textarea();
 
 void adjust_list_string();
 
-int main();
+int main(int, char**);
 
 #endif

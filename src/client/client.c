@@ -140,9 +140,9 @@ void foo()
 
 void help()
 {
-     fprintf(stdout, OPTION_IP);
-     fprintf(stdout, OPTION_PORT);
-     fprintf(stdout, OPTION_DIRECTORY);
+     fprintf(stdout, HELP_OPTION_IP);
+     fprintf(stdout, HELP_OPTION_PORT);
+     fprintf(stdout, HELP_OPTION_DIRECTORY);
 
      exit_program();
 }
@@ -196,6 +196,41 @@ void initialize_windows()
     box(g_window_form, ACS_VLINE, ACS_HLINE);
 }
 
+void initialize_options(int p_count_arguments, char** p_arguments_values)
+{
+    int t_result_option;
+    int t_option_index = 0;
+    struct option t_long_options[] =
+    {
+        {PARAMETERS_HELP, 0, NULL, 0},
+        {PARAMETERS_PORT, 1, NULL, 0},
+        {PARAMETERS_IP, 1, NULL, 0},
+        {NULL, 0, NULL, 0}
+    };
+
+    while ((t_result_option = getopt_long(p_count_arguments, p_arguments_values, ":",
+    t_long_options, &t_option_index)) != -1)
+    {
+    switch(t_result_option)
+    {
+        case 0:
+            if(strcasecmp(PARAMETERS_HELP, optarg))
+                help();
+            else if(strcasecmp(PARAMETERS_PORT, optarg))
+                g_port = atoi(optarg);
+            else if(strcasecmp(PARAMETERS_IP, optarg))
+                strcpy(g_ip, optarg);
+            else
+                help();
+            break;
+
+            default:
+                help();
+            break;
+        }
+    }
+}
+
 void refresh_windows()
 {
     pthread_mutex_lock(&g_mutex);
@@ -213,8 +248,10 @@ void refresh_windows()
     pthread_mutex_unlock(&g_mutex);
 }
 
-int main()
+int main(int p_count_arguments, char** p_arguments_values)
 {
+    initialize_options(p_count_arguments, p_arguments_values);
+
      foo();
 
      return 0;

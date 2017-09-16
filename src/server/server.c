@@ -163,13 +163,11 @@ void foo()
 
     struct sockaddr_in t_sockaddr_in_client;
 
-    int t_index = 0;
-
     while(1)
     {
         pthread_mutex_lock(&g_mutex);
 
-        t_index = size_list_int(g_list);
+        int t_index = size_list_int(g_list);
 
         if(t_index == 0)
             t_index = g_count_client;
@@ -240,7 +238,7 @@ void foo()
 
             refresh_windows();
 
-            pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_handler, &t_index);
+            pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_handler, (void*) t_index);
         }
 
         pthread_mutex_lock(&g_mutex);
@@ -360,20 +358,54 @@ void exit_program()
 void initialize_services()
 {
     for(int t_index = 0; t_index < 10; t_index++)
-      g_services[t_index] = create_service();
+        g_services[t_index] = create_service();
 
     g_services[0]->a_service_handler = tchat_handler;
 }
 
 void initialize_connections()
 {
-          for(int t_index = 0; t_index < 10; t_index++)
-               g_connections[t_index] = create_connection();
+    for(int t_index = 0; t_index < 10; t_index++)
+        g_connections[t_index] = create_connection();
 }
 
-int main()
+void initialize_options(int p_count_arguments, char** p_arguments_values)
 {
-          foo();
+    int t_result_option;
+    int t_option_index = 0;
+    struct option t_long_options[] =
+    {
+        {PARAMETERS_HELP, 0, NULL, 0},
+        {PARAMETERS_PORT, 1, NULL, 0},
+        {NULL, 0, NULL, 0}
+    };
 
-          return 0;
+    while ((t_result_option = getopt_long(p_count_arguments, p_arguments_values, ":i:p:d:f::",
+    t_long_options, &t_option_index)) != -1)
+    {
+    switch(t_result_option)
+    {
+        case 0:
+            if(strcasecmp(PARAMETERS_HELP, optarg))
+                help();
+            else if(strcasecmp(PARAMETERS_PORT, optarg))
+                g_port = atoi(optarg);
+            else
+                help();
+            break;
+
+            default:
+                help();
+            break;
+        }
+    }
+}
+
+int main(int p_count_arguments, char** p_arguments_values)
+{
+    initialize_options(p_count_arguments, p_arguments_values);
+
+    foo();
+
+    return 0;
 }

@@ -41,6 +41,9 @@
 
 #define MESSAGE_NEW_CONNEXION "New connection (%d)\n"
 
+#define PARAMETERS_HELP "help"
+#define PARAMETERS_PORT "port"
+
 typedef struct SERVICE
 {
      char* a_service_name;
@@ -95,6 +98,8 @@ void initialize_server_socket(int p_server_socket_to_initialize);
 */
 void re_initialize_windows();
 
+void initialize_options(int, char**);
+
 /*
 * (End) initializations
 */
@@ -121,6 +126,6 @@ void exit_program();
 
 void* command_handler();
 
-int main();
+int main(int p_count_arguments, char** p_arguments_values);
 
 #endif
