@@ -2,11 +2,11 @@
 
 void* read_handler()
 {
-    char t_readed_buffer[BUFSIZ];
+    char t_received_buffer[BUFSIZ];
 
     while(1)
     {
-        ssize_t t_readed_size = recv(g_socket, t_readed_buffer, BUFSIZ, 0);
+        ssize_t t_readed_size = recv(g_socket, t_received_buffer, BUFSIZ, 0);
 
         if(t_readed_size == 0)
         {
@@ -24,7 +24,7 @@ void* read_handler()
         {
             pthread_mutex_lock(&g_mutex);
 
-            add_element_list_string(g_list_string, t_readed_buffer);
+            add_element_list_string(g_list_string, t_received_buffer);
 
             pthread_mutex_unlock(&g_mutex);
 
@@ -33,8 +33,6 @@ void* read_handler()
             print_textarea();
 
             refresh_windows();
-
-            memset(t_readed_buffer, 0, BUFSIZ);
         }
     }
 }
@@ -125,25 +123,18 @@ void foo()
      }
 
      t_sockaddr_in_client.sin_addr.s_addr = inet_addr(g_ip);
-     t_sockaddr_in_client.sin_family      = AF_INET;
-     t_sockaddr_in_client.sin_port        = htons(g_port);
+     t_sockaddr_in_client.sin_family           = AF_INET;
+     t_sockaddr_in_client.sin_port               = htons(g_port);
 
      if(connect(g_socket , (struct sockaddr *)&t_sockaddr_in_client, sizeof(t_sockaddr_in_client)) < 0)
-     {
-          perror("connect");
           exit_program();
-     }
-
-     box(g_window_textarea, ACS_VLINE, ACS_HLINE);
-     box(g_window_form, ACS_VLINE, ACS_HLINE);
-
-    if(pthread_create(&g_read_thread, NULL, (void*) read_handler, NULL) == -1)
-        exit_program();
 
     if(pthread_create(&g_write_thread, NULL, (void*) write_handler, NULL) == -1)
         exit_program();
 
-    //pthread_join(g_write_thread, NULL);
+    if(pthread_create(&g_read_thread, NULL, (void*) read_handler, NULL) == -1)
+        exit_program();
+
     pthread_join(g_read_thread, NULL);
 }
 

@@ -1,6 +1,5 @@
 #ifndef CLIENT_H
 #define CLIENT_H
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -29,22 +28,22 @@
 #include "../struct/list_int.h"
 #include "../struct/input_line.h"
 
-#define DEFAULT_PORT      6666
-#define DEFAULT_IP        "127.0.0.1"
+#define DEFAULT_PORT            6666
+#define DEFAULT_IP                  "127.0.0.1"
 #define DEFAULT_DIRECTORY ".test"
 
-#define ERROR_MESSAGE_SOCKET  "socket"
+#define ERROR_MESSAGE_SOCKET    "socket"
 #define ERROR_MESSAGE_CONNECT "connect"
-#define ERROR_MESSAGE_FOPEN   "Error : fopen\n"
+#define ERROR_MESSAGE_FOPEN      "Error : fopen\n"
 
-#define MESSAGE_REMAINING       "%d remaining\n"
+#define MESSAGE_REMAINING                "%d remaining\n"
 #define MESSAGE_FILE_DOWNLOADED "%s downloaded\n"
 
 #define PROMPT_MESSAGE "> "
 
-#define OPTION_IP        "-i ip_address\n"
-#define OPTION_DIRECTORY "-d directory\n"
-#define OPTION_PORT      "-p port\n"
+#define HELP_OPTION_IP                 "-i ip_address\n"
+#define HELP_OPTION_DIRECTORY "-d directory\n"
+#define HELP_OPTION_PORT             "-p port\n"
 
 #define EXIT_MESSAGE "exit"
 

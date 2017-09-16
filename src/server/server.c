@@ -187,10 +187,9 @@ void foo()
 
         g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) &c);
 
-    //    ssize_t read_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
+        ssize_t t_readed_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
 
-        int read_size = 12;
-        if(read_size == 0)
+        if(t_readed_size == 0)
         {
             pthread_mutex_lock(&g_mutex);
 
@@ -202,9 +201,9 @@ void foo()
 
             exit_program();
         }
-        else if(read_size == -1)
+        else if(t_readed_size == -1)
         {
-            fprintf(stdout, "Connection lost : %d (%zu)\n", g_count_client, read_size);
+            fprintf(stdout, "Connection lost : %d (%zu)\n", g_count_client, t_readed_size);
 
             pthread_mutex_lock(&g_mutex);
 
@@ -227,7 +226,7 @@ void foo()
             strcat(t_buffer, t_buffer_int);
             strcat(t_buffer, ") ");
             strcat(t_buffer, " -> ");
-        //    strcat(t_buffer, t_receive_buffer);
+            strcat(t_buffer, t_receive_buffer);
 
             pthread_mutex_lock(&g_mutex);
 
