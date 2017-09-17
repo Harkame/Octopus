@@ -2,7 +2,7 @@
 
 void* tchat_handler(void* p_client_number)
 {
-     int t_client_number = p_client_number;
+     int t_client_number = (int) (intptr_t) p_client_number;
 
      extern int g_count_client;
      extern pthread_mutex_t g_mutex;

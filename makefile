@@ -2,7 +2,7 @@ MKDIR           = mkdir -p
 GCC             = gcc -W -Wall -ansi -std=gnu99 -O3
 OPTIONS         = -pthread -D_GNU_SOURCE -lncurses
 LIBRARY_OPTIONS = -shared -fPIC
-LIBRARY_FILES   = ./bin/transfer/file_transfer.so ./bin/struct/list_int.so ./bin/struct/list_string.so ./bin/struct/input_line.so ./bin/struct/connection.so
+LIBRARY_FILES   = ./bin/transfer/file_transfer.so ./bin/struct/list_int.so ./bin/struct/list_string.so ./bin/struct/input_line.so ./bin/struct/connection.so ./bin/struct/options.so
 SERVICES_FILES  = ./bin/services/tchat.so
 
 all: directory file clean
@@ -31,7 +31,7 @@ file_transfer:
 	${GCC} ./src/transfer/file_transfer.c ${LIBRARY_OPTIONS} -o ./bin/transfer/file_transfer.so;
 
 # BEGIN STRUCT
-struct: list input_line connection
+struct: list input_line connection options
 # BEGIN LIST
 list: list_int list_string
 
@@ -47,6 +47,10 @@ input_line:
 
 connection:
 	${GCC} ./src/struct/connection.c ${LIBRARY_OPTIONS}  -o ./bin/struct/connection.so;
+
+options:
+	${GCC} ./src/struct/options.c ${LIBRARY_OPTIONS}  -o ./bin/struct/options.so;
+
 # END STRUCT
 
 test:

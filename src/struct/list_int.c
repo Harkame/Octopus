@@ -61,12 +61,12 @@ void remove_element_list_int_aux(struct LIST_INT* p_list_int, int p_index, int p
           return remove_element_list_int_aux(p_list_int->a_next, p_index, p_count + 1);
 }
 
-int get_element_list_int(struct LIST_INT* p_list, int p_index)
+signed int get_element_list_int(struct LIST_INT* p_list, int p_index)
 {
      return get_element_list_int_aux(p_list, p_index, 0);
 }
 
-int get_element_list_int_aux(struct LIST_INT* p_list, int p_index, int p_count)
+signed int get_element_list_int_aux(struct LIST_INT* p_list, int p_index, int p_count)
 {
      if(p_index == p_count)
           return p_list->a_value;

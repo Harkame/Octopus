@@ -29,6 +29,7 @@
 #include "../struct/list_string.h"
 #include "../struct/input_line.h"
 #include "../struct/connection.h"
+#include "../struct/options.h"
 
 #include "../services/tchat.h"
 
@@ -50,13 +51,6 @@ typedef struct SERVICE
 
      void* (*a_service_handler)(void*);
 } SERVICE;
-
-typedef struct OPTION
-{
-     char* a_option_title;
-
-     char* a_option_value;
-} OPTION;
 
 int g_port = DEFAULT_VALUE_PORT;
 

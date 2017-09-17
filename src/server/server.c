@@ -108,9 +108,9 @@ void initialize_socket(int p_server_socket_to_initialize)
 {
     struct sockaddr_in t_sockaddr_in_server;
 
-    t_sockaddr_in_server.sin_family      = AF_INET;
+    t_sockaddr_in_server.sin_family            = AF_INET;
     t_sockaddr_in_server.sin_addr.s_addr = INADDR_ANY;
-    t_sockaddr_in_server.sin_port        = htons(g_port);
+    t_sockaddr_in_server.sin_port               = htons(g_port);
 
     if(bind(p_server_socket_to_initialize,(struct sockaddr *)&t_sockaddr_in_server , sizeof(t_sockaddr_in_server)) < 0)
             exit_program();
@@ -167,7 +167,7 @@ void foo()
     {
         pthread_mutex_lock(&g_mutex);
 
-        int t_index = size_list_int(g_list);
+        short t_index = size_list_int(g_list);
 
         if(t_index == 0)
             t_index = g_count_client;
@@ -179,11 +179,9 @@ void foo()
 
         pthread_mutex_unlock(&g_mutex);
 
-        int c = sizeof(struct sockaddr_in);
-
         char t_receive_buffer[BUFSIZ];
 
-        g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) &c);
+        g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) sizeof(t_sockaddr_in_client));
 
         ssize_t t_readed_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
 
@@ -238,7 +236,7 @@ void foo()
 
             refresh_windows();
 
-            pthread_create(&g_threads[t_index], NULL, (void*) g_services[0]->a_service_handler, (void*) t_index);
+            pthread_create(&g_threads[t_index], NULL, g_services[0]->a_service_handler, (void*) (intptr_t) t_index);
         }
 
         pthread_mutex_lock(&g_mutex);
