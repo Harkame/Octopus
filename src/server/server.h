@@ -25,6 +25,7 @@
 #include <features.h>
 #include <curses.h>
 
+#include "../struct/list.h"
 #include "../struct/list_int.h"
 #include "../struct/list_string.h"
 #include "../struct/input_line.h"
@@ -68,6 +69,8 @@ pthread_t g_command_thread;;
 pthread_t g_threads [10];
 
 struct LIST_INT* g_list;
+
+struct LIST* g_list_options;
 
 struct SERVICE* g_services[10];
 

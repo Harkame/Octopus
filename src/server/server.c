@@ -399,11 +399,76 @@ void initialize_options(int p_count_arguments, char** p_arguments_values)
     }
 }
 
+void parse_options()
+{
+    char t_array[255] = {"Yolo --tata bite --fogo"};
+
+    g_list_options = create_list();
+
+    for(int t_index = 0; t_array[t_index] != '\0'; t_index++)
+    {
+        if(t_array[t_index] == '-') //Option
+        {
+            t_index++;
+
+            if(t_array[t_index] == '-') //Long option
+            {
+                t_index++;
+
+                while(t_array[t_index] == ' ')
+                    t_index++;
+
+                char t_t_array[BUFSIZ];
+                char t_t_array_char[2];
+
+                while(t_array[t_index] != ' ')
+                {
+                    t_t_array_char[0] = t_array[t_index];
+                    t_t_array_char[1] = '\0';
+
+                    strcat(t_t_array, t_t_array_char);
+                }
+
+                struct OPTION* t_option = create_option();
+
+                strcpy(t_option->a_option_title, t_t_array);
+
+                while(t_array[t_index] == ' ')
+                    t_index++;
+
+                memset(t_t_array, 0, BUFSIZ);
+                memset(t_t_array_char, 0, 2);
+
+                while(t_array[t_index] != ' ')
+                {
+                    t_t_array_char[0] = t_array[t_index];
+                    t_t_array_char[1] = '\0';
+
+                    strcat(t_t_array, t_t_array_char);
+                }
+
+                strcpy(t_option->a_option_value, t_t_array);
+
+            }
+            else //Short option
+            {
+
+            }
+        }
+        else if(t_array[t_index != ' ']) // Value without option
+        {
+
+        }
+    }
+}
+
 int main(int p_count_arguments, char** p_arguments_values)
 {
-    initialize_options(p_count_arguments, p_arguments_values);
+    parse_options();
 
-    foo();
+    //initialize_options(p_count_arguments, p_arguments_values);
+
+    //foo();
 
     return 0;
 }
