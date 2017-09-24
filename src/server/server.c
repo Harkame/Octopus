@@ -3,9 +3,12 @@
 void* command_handler()
 {
     struct input_line linep_bufferfer;
-    struct OPTIONS t_options;
 
     make_input_line(&linep_bufferfer);
+
+    struct OPTIONS t_options;
+
+    create_options(&t_options);
 
     while(1)
     {
@@ -16,19 +19,18 @@ void* command_handler()
         if(len > 0)
         {
             if(strcmp(t_readed_command, "exit") == 0)
+            {
+                delete_options(&t_options);
                 exit_program();
+            }
 
             pthread_mutex_lock(&g_mutex);
-
-            create_options(&t_options);
 
             add_element_list_string(&g_list_string, t_readed_command);
 
             parse_command(&t_options, t_readed_command);
 
             initialize_options(&t_options);
-
-            //delete_options(&t_options);
 
             pthread_mutex_unlock(&g_mutex);
 
@@ -164,7 +166,7 @@ void foo()
     {
         pthread_mutex_lock(&g_mutex);
 
-        short t_index = size_list_int(&g_list);
+        int t_index = size_list_int(&g_list);
 
         if(t_index == 0)
             t_index = g_count_client;
@@ -180,15 +182,13 @@ void foo()
 
         g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) sizeof(t_sockaddr_in_client));
 
-        ssize_t t_readed_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
+        ssize_t t_readed_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, MSG_WAITALL);
 
         if(t_readed_size == 0)
         {
             pthread_mutex_lock(&g_mutex);
 
             add_first_element_list_int(&g_list, g_count_client);
-
-            g_count_client--;
 
             pthread_mutex_unlock(&g_mutex);
 
@@ -201,8 +201,6 @@ void foo()
             pthread_mutex_lock(&g_mutex);
 
             add_first_element_list_int(&g_list, g_count_client);
-
-            g_count_client--;
 
             pthread_mutex_unlock(&g_mutex);
 
@@ -391,17 +389,11 @@ void parse_command(struct OPTIONS* p_options_readed, char* p_command)
 
     while(t_token != NULL)
     {
-        p_options_readed->a_options_values[t_count] = malloc(sizeof(char) * 50);
-
        strcpy(p_options_readed->a_options_values[t_count], t_token);
-
-       t_count++;
-
-       fprintf(stdout, "Token : %s\n", t_token);
        t_token = strtok(NULL, p_command);
     }
 
-    p_options_readed->a_options_count = t_count;
+    p_options_readed->a_options_count = t_count - 1;
 }
 
 void initialize_options(struct OPTIONS* p_options)
