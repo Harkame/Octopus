@@ -1,26 +1,26 @@
 #include "list.h"
 
-struct LIST* create_list()
+void create_list(struct LIST* p_list_to_create)
 {
-     struct LIST* r_list = malloc(sizeof(struct LIST));
+     p_list_to_create = malloc(sizeof(struct LIST));
 
-     r_list->a_value = NULL;
-     r_list->a_next  = NULL;
-
-     return r_list;
+     p_list_to_create->a_value = NULL;
+     p_list_to_create->a_next  = NULL;
 }
 
 void add_first_element_list(struct LIST* p_list, void* p_value_to_add)
 {
-     struct LIST* t_list = create_list();
+     struct LIST t_list;
 
-     t_list->a_value = p_list->a_value;
+     create_list(&t_list);
+
+     t_list.a_value = p_list->a_value;
 
      p_list->a_value = p_value_to_add;
 
-     t_list->a_next = p_list->a_next;
+     t_list.a_next = p_list->a_next;
 
-     p_list->a_next = t_list;
+     p_list->a_next = &t_list;
 }
 
 void add_last_element_list(struct LIST* p_list, void* p_value_to_add)
@@ -29,9 +29,11 @@ void add_last_element_list(struct LIST* p_list, void* p_value_to_add)
      {
           p_list->a_value = p_value_to_add;
 
-          struct LIST* t_list = create_list();
+          struct LIST t_list;
 
-          p_list->a_next = t_list;
+          create_list(&t_list);
+
+          p_list->a_next = &t_list;
      }
      else
           add_last_element_list(p_list->a_next, p_value_to_add);
@@ -39,7 +41,7 @@ void add_last_element_list(struct LIST* p_list, void* p_value_to_add)
 
 void remove_element_list(struct LIST* p_list, int p_index)
 {
-     return remove_element_list_aux(p_list, p_index, 0);
+     remove_element_list_aux(p_list, p_index, 0);
 }
 
 void remove_element_list_aux(struct LIST* p_list, int p_index, int p_count)
@@ -58,7 +60,7 @@ void remove_element_list_aux(struct LIST* p_list, int p_index, int p_count)
           p_list->a_next = t_list;
      }
      else
-          return remove_element_list_aux(p_list->a_next, p_index, p_count + 1);
+          remove_element_list_aux(p_list->a_next, p_index, p_count + 1);
 }
 
 void* get_element_list(struct LIST* p_list, int p_index)
@@ -80,15 +82,4 @@ int size_list(struct LIST* p_list)
           return 0;
      else
           return 1 + size_list(p_list->a_next);
-}
-
-void print_list(struct LIST* p_list)
-{
-     if(p_list->a_next == NULL)
-          fprintf(stdout, "|\n");
-     else
-     {
-          fprintf(stdout, "[%d] -> ", p_list->a_value);
-          print_list(p_list->a_next);
-     }
 }

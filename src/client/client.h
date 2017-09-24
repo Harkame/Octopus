@@ -67,7 +67,7 @@ FILE* g_downloaded_file;
 WINDOW* g_window_textarea;
 WINDOW* g_window_form;
 
-struct LIST_STRING* g_list_string;
+struct LIST_STRING g_list_string;
 
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 

@@ -5,11 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct OPTION
+typedef struct OPTIONS
 {
-     char* a_option_title;
+     int a_options_count;
 
-     char* a_option_value;
-} OPTION;
+     char** a_options_values;
+} OPTIONS;
+
+void create_options(struct OPTIONS*);
+
+void delete_options(struct OPTIONS*);
 
 #endif

@@ -1,26 +1,26 @@
 #include "list_int.h"
 
-struct LIST_INT* create_list_int()
+void create_list_int(struct LIST_INT* p_list_int_to_create)
 {
-     struct LIST_INT* r_list = malloc(sizeof(struct LIST_INT));
+     p_list_int_to_create = malloc(sizeof(struct LIST_INT));
 
-     r_list->a_value = -1;
-     r_list->a_next  = NULL;
-
-     return r_list;
+     p_list_int_to_create->a_value = -1;
+     p_list_int_to_create->a_next  = NULL;
 }
 
 void add_first_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
 {
-     struct LIST_INT* t_list = create_list_int();
+     struct LIST_INT t_list;
 
-     t_list->a_value = p_list_int->a_value;
+     create_list_int(&t_list);
+
+     t_list.a_value = p_list_int->a_value;
 
      p_list_int->a_value = p_value_to_add;
 
-     t_list->a_next = p_list_int->a_next;
+     t_list.a_next = p_list_int->a_next;
 
-     p_list_int->a_next = t_list;
+     p_list_int->a_next = &t_list;
 }
 
 void add_last_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
@@ -29,9 +29,11 @@ void add_last_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
      {
           p_list_int->a_value = p_value_to_add;
 
-          struct LIST_INT* t_list = create_list_int();
+          struct LIST_INT t_list;
 
-          p_list_int->a_next = t_list;
+          create_list_int(&t_list);
+
+          p_list_int->a_next = &t_list;
      }
      else
           add_last_element_list_int(p_list_int->a_next, p_value_to_add);

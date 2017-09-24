@@ -12,7 +12,7 @@ typedef struct LIST_STRING
      struct LIST_STRING* a_next;
 } LIST_STRING;
 
-struct LIST_STRING* create_list_string();
+void create_list_string(struct LIST_STRING* p_list_string_to_create);
 
 void add_element_list_string(struct LIST_STRING* p_LIST_STRING, char* p_value_to_add);
 

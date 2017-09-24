@@ -24,7 +24,7 @@ void* read_handler()
         {
             pthread_mutex_lock(&g_mutex);
 
-            add_element_list_string(g_list_string, t_received_buffer);
+            add_element_list_string(&g_list_string, t_received_buffer);
 
             pthread_mutex_unlock(&g_mutex);
 
@@ -55,7 +55,7 @@ void* write_handler()
 
             pthread_mutex_lock(&g_mutex);
 
-            add_element_list_string(g_list_string, t_readed_line);
+            add_element_list_string(&g_list_string, t_readed_line);
 
             pthread_mutex_unlock(&g_mutex);
 
@@ -110,7 +110,7 @@ void foo()
 
     refresh_windows();
 
-    g_list_string = create_list_string();
+    create_list_string(&g_list_string);
 
     struct sockaddr_in t_sockaddr_in_client;
 
@@ -123,7 +123,7 @@ void foo()
      }
 
      t_sockaddr_in_client.sin_addr.s_addr = inet_addr(g_ip);
-     t_sockaddr_in_client.sin_family           = AF_INET;
+     t_sockaddr_in_client.sin_family            = AF_INET;
      t_sockaddr_in_client.sin_port               = htons(g_port);
 
      if(connect(g_socket , (struct sockaddr *)&t_sockaddr_in_client, sizeof(t_sockaddr_in_client)) < 0)
@@ -151,16 +151,16 @@ void print_textarea()
 {
     pthread_mutex_lock(&g_mutex);
 
-    char* t_buffer[size_list_string(g_list_string)];
+    char* t_buffer[size_list_string(&g_list_string)];
 
-    for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
+    for(int t_index = 0; t_index < size_list_string(&g_list_string); t_index++)
         t_buffer[t_index] = alloca(50 * sizeof(char));
 
-    list_string_to_array(g_list_string, t_buffer, 0, size_list_string(g_list_string));
+    list_string_to_array(&g_list_string, t_buffer, 0, size_list_string(&g_list_string));
 
     wclear(g_window_textarea);
 
-    for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
+    for(int t_index = 0; t_index < size_list_string(&g_list_string); t_index++)
         mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]);
 
     pthread_mutex_unlock(&g_mutex);
@@ -170,8 +170,8 @@ void adjust_list_string()
 {
     pthread_mutex_lock(&g_mutex);
 
-    if(size_list_string(g_list_string) > (LINES / 3) - 3)
-        remove_first_element_list_string(g_list_string);
+    if(size_list_string(&g_list_string) > (LINES / 3) - 3)
+        remove_first_element_list_string(&g_list_string);
 
     pthread_mutex_unlock(&g_mutex);
 }

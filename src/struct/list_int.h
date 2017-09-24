@@ -11,7 +11,7 @@ typedef struct LIST_INT
      struct LIST_INT* a_next;
 } LIST_INT;
 
-struct LIST_INT* create_list_int();
+void create_list_int(struct LIST_INT* p_list_int_to_create);
 
 void add_last_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add);
 

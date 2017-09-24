@@ -6,7 +6,7 @@ void* tchat_handler(void* p_client_number)
 
      extern int g_count_client;
      extern pthread_mutex_t g_mutex;
-     extern struct LIST_STRING* g_list_string;
+     extern struct LIST_STRING g_list_string;
      extern struct CONNECTION* g_connections[];
 
      char t_receive_buffer[BUFSIZ];
@@ -81,7 +81,7 @@ void* tchat_handler(void* p_client_number)
 
                pthread_mutex_lock(&g_mutex);
 
-               add_element_list_string(g_list_string,t_buffer);
+               add_element_list_string(&g_list_string,t_buffer);
 
                pthread_mutex_unlock(&g_mutex);
 

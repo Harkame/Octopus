@@ -43,6 +43,8 @@
 
 #define MESSAGE_NEW_CONNEXION "New connection (%d)\n"
 
+#define HELP_OPTIONS_PORT "-p port (default : 6666)\n"
+
 #define PARAMETERS_HELP "help"
 #define PARAMETERS_PORT "port"
 
@@ -60,17 +62,17 @@ struct CONNECTION* g_connections[10];
 WINDOW* g_window_textarea;
 WINDOW* g_window_form;
 
-struct LIST_STRING* g_list_string;
-
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_t g_command_thread;;
 
 pthread_t g_threads [10];
 
-struct LIST_INT* g_list;
+struct LIST_STRING g_list_string;
 
-struct LIST* g_list_options;
+struct LIST_INT g_list;
+
+struct LIST g_list_options;
 
 struct SERVICE* g_services[10];
 
@@ -95,7 +97,9 @@ void initialize_server_socket(int p_server_socket_to_initialize);
 */
 void re_initialize_windows();
 
-void initialize_options(int, char**);
+void initialize_options(struct OPTIONS*);
+
+void parse_command(struct OPTIONS*, char*);
 
 /*
 * (End) initializations

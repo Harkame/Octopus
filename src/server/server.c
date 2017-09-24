@@ -3,6 +3,8 @@
 void* command_handler()
 {
     struct input_line linep_bufferfer;
+    struct OPTIONS t_options;
+
     make_input_line(&linep_bufferfer);
 
     while(1)
@@ -18,13 +20,19 @@ void* command_handler()
 
             pthread_mutex_lock(&g_mutex);
 
-            add_element_list_string(g_list_string, t_readed_command);
+            create_options(&t_options);
+
+            add_element_list_string(&g_list_string, t_readed_command);
+
+            parse_command(&t_options, t_readed_command);
+
+            initialize_options(&t_options);
+
+            //delete_options(&t_options);
 
             pthread_mutex_unlock(&g_mutex);
 
             adjust_list_string();
-
-            read_command_parameters(t_readed_command);
 
             print_textarea();
 
@@ -32,7 +40,6 @@ void* command_handler()
         }
 
         render_line(&linep_bufferfer);
-
 
         pthread_mutex_lock(&g_mutex);
 
@@ -65,16 +72,16 @@ void print_textarea()
 {
     pthread_mutex_lock(&g_mutex);
 
-    char* t_buffer[size_list_string(g_list_string)];
+    char* t_buffer[size_list_string(&g_list_string)];
 
-    for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
+    for(int t_index = 0; t_index < size_list_string(&g_list_string); t_index++)
         t_buffer[t_index] = alloca(50 * sizeof(char));
 
-    list_string_to_array(g_list_string, t_buffer, 0, size_list_string(g_list_string));
+    list_string_to_array(&g_list_string, t_buffer, 0, size_list_string(&g_list_string));
 
     wclear(g_window_textarea);
 
-    for(int t_index = 0; t_index < size_list_string(g_list_string); t_index++)
+    for(int t_index = 0; t_index < size_list_string(&g_list_string); t_index++)
         mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]);
 
     pthread_mutex_unlock(&g_mutex);
@@ -84,8 +91,8 @@ void adjust_list_string()
 {
     pthread_mutex_lock(&g_mutex);
 
-    if(size_list_string(g_list_string) > (LINES / 3) - 3)
-        remove_first_element_list_string(g_list_string);
+    if(size_list_string(&g_list_string) > (LINES / 3) - 3)
+        remove_first_element_list_string(&g_list_string);
 
     pthread_mutex_unlock(&g_mutex);
 }
@@ -127,23 +134,13 @@ struct SERVICE* create_service()
     return r_service;
 }
 
-struct OPTION* create_option()
-{
-    struct OPTION* r_option = malloc(sizeof(struct SERVICE));
-
-    r_option->a_option_title    = malloc(20 * sizeof(char));
-    r_option->a_option_value = malloc(20 * sizeof(char));
-
-    return r_option;
-}
-
 void foo()
 {
     initialize_windows();
 
     refresh_windows();
 
-    g_list_string = create_list_string();
+    create_list_string(&g_list_string);
 
     initialize_services();
 
@@ -152,7 +149,7 @@ void foo()
     if(pthread_create(&g_command_thread, NULL, (void*) command_handler, NULL) == -1)
         exit_program();
 
-    g_list = create_list_int();
+    create_list_int(&g_list);
 
     int t_server_socket = socket(AF_INET , SOCK_STREAM , 0);
 
@@ -167,14 +164,14 @@ void foo()
     {
         pthread_mutex_lock(&g_mutex);
 
-        short t_index = size_list_int(g_list);
+        short t_index = size_list_int(&g_list);
 
         if(t_index == 0)
             t_index = g_count_client;
         else
         {
-            t_index = get_element_list_int(g_list, 0);
-            remove_element_list_int(g_list, 0);
+            t_index = get_element_list_int(&g_list, 0);
+            remove_element_list_int(&g_list, 0);
         }
 
         pthread_mutex_unlock(&g_mutex);
@@ -189,7 +186,7 @@ void foo()
         {
             pthread_mutex_lock(&g_mutex);
 
-            add_first_element_list_int(g_list, g_count_client);
+            add_first_element_list_int(&g_list, g_count_client);
 
             g_count_client--;
 
@@ -203,7 +200,7 @@ void foo()
 
             pthread_mutex_lock(&g_mutex);
 
-            add_first_element_list_int(g_list, g_count_client);
+            add_first_element_list_int(&g_list, g_count_client);
 
             g_count_client--;
 
@@ -226,7 +223,7 @@ void foo()
 
             pthread_mutex_lock(&g_mutex);
 
-            add_element_list_string(g_list_string, t_buffer);
+            add_element_list_string(&g_list_string, t_buffer);
 
             pthread_mutex_unlock(&g_mutex);
 
@@ -249,7 +246,21 @@ void foo()
 
 void help()
 {
+    pthread_mutex_lock(&g_mutex);
 
+    erase();
+
+    endwin();
+
+    for(int t_index = 0; t_index < g_count_client; t_index++)
+        close(g_connections[t_index]->a_socket);
+
+    pthread_mutex_unlock(&g_mutex);
+
+    pthread_mutex_destroy(&g_mutex);
+
+    fprintf(stdout, HELP_OPTIONS_PORT);
+    exit(1);
 }
 
 void read_command_parameters(char* p_command_to_read)
@@ -348,6 +359,8 @@ void exit_program()
 
     pthread_mutex_unlock(&g_mutex);
 
+    pthread_mutex_destroy(&g_mutex);
+
     perror("exit_programm: ");
 
     exit(1);
@@ -367,108 +380,79 @@ void initialize_connections()
         g_connections[t_index] = create_connection();
 }
 
-void initialize_options(int p_count_arguments, char** p_arguments_values)
+void parse_command(struct OPTIONS* p_options_readed, char* p_command)
 {
-    int t_result_option;
-    int t_option_index = 0;
-    struct option t_long_options[] =
-    {
-        {PARAMETERS_HELP, 0, NULL, 0},
-        {PARAMETERS_PORT, 1, NULL, 0},
-        {NULL, 0, NULL, 0}
-    };
+    const char t_separator[1] = " ";
+    char* t_token;
 
-    while ((t_result_option = getopt_long(p_count_arguments, p_arguments_values, ":i:p:d:f::",
-    t_long_options, &t_option_index)) != -1)
-    {
-    switch(t_result_option)
-    {
-        case 0:
-            if(strcasecmp(PARAMETERS_HELP, optarg))
-                help();
-            else if(strcasecmp(PARAMETERS_PORT, optarg))
-                g_port = atoi(optarg);
-            else
-                help();
-            break;
+    t_token = strtok(p_command, t_separator);
 
-            default:
-                help();
-            break;
-        }
+    int t_count = 0;
+
+    while(t_token != NULL)
+    {
+        p_options_readed->a_options_values[t_count] = malloc(sizeof(char) * 50);
+
+       strcpy(p_options_readed->a_options_values[t_count], t_token);
+
+       t_count++;
+
+       fprintf(stdout, "Token : %s\n", t_token);
+       t_token = strtok(NULL, p_command);
     }
+
+    p_options_readed->a_options_count = t_count;
 }
 
-void parse_options()
+void initialize_options(struct OPTIONS* p_options)
 {
-    char t_array[255] = {"Yolo --tata bite --fogo"};
+     int t_result_option = 0;
+     int t_option_index = 0;
+     struct option t_long_options[] =
+     {
+          {"help", 0, NULL, 0},
+          {NULL, 0, NULL, 0}
+     };
 
-    g_list_options = create_list();
+     while ((t_result_option = getopt_long(p_options->a_options_count, p_options->a_options_values, "c:p:",
+     t_long_options, &t_option_index)) != -1)
+     {
+          switch(t_result_option)
+          {
+               case 0:
+                    //if(strcasecmp("help", optarg))
+                        //help();
+               break;
 
-    for(int t_index = 0; t_array[t_index] != '\0'; t_index++)
-    {
-        if(t_array[t_index] == '-') //Option
-        {
-            t_index++;
+               case 'i':
+               break;
 
-            if(t_array[t_index] == '-') //Long option
-            {
-                t_index++;
+               case 'p':
+                    g_port = atoi(optarg);
+               break;
 
-                while(t_array[t_index] == ' ')
-                    t_index++;
+               case 'd':
+               break;
 
-                char t_t_array[BUFSIZ];
-                char t_t_array_char[2];
+               case 'f':
+               break;
 
-                while(t_array[t_index] != ' ')
-                {
-                    t_t_array_char[0] = t_array[t_index];
-                    t_t_array_char[1] = '\0';
-
-                    strcat(t_t_array, t_t_array_char);
-                }
-
-                struct OPTION* t_option = create_option();
-
-                strcpy(t_option->a_option_title, t_t_array);
-
-                while(t_array[t_index] == ' ')
-                    t_index++;
-
-                memset(t_t_array, 0, BUFSIZ);
-                memset(t_t_array_char, 0, 2);
-
-                while(t_array[t_index] != ' ')
-                {
-                    t_t_array_char[0] = t_array[t_index];
-                    t_t_array_char[1] = '\0';
-
-                    strcat(t_t_array, t_t_array_char);
-                }
-
-                strcpy(t_option->a_option_value, t_t_array);
-
-            }
-            else //Short option
-            {
-
-            }
-        }
-        else if(t_array[t_index != ' ']) // Value without option
-        {
-
-        }
-    }
+               default:
+                    //help();
+               break;
+          }
+     }
 }
 
 int main(int p_count_arguments, char** p_arguments_values)
 {
-    parse_options();
+    struct OPTIONS t_options;
+    t_options.a_options_count = p_count_arguments;
+    t_options.a_options_values = p_arguments_values;
 
-    //initialize_options(p_count_arguments, p_arguments_values);
+    initialize_options(&t_options);
 
-    //foo();
+    foo();
 
     return 0;
 }

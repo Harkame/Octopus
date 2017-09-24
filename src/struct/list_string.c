@@ -1,16 +1,10 @@
 #include "list_string.h"
 
-struct LIST_STRING* create_list_string()
+void create_list_string(struct LIST_STRING* p_list_string_to_create)
 {
-     struct LIST_STRING* r_list = malloc(sizeof(struct LIST_STRING));
+     p_list_string_to_create->a_value = malloc(sizeof(char) * 255);
 
-     r_list->a_value = malloc(255 * sizeof(char));
-
-     r_list->a_value[0] = '\0';
-
-     r_list->a_next  = NULL;
-
-     return r_list;
+     p_list_string_to_create->a_next  = NULL;
 }
 
 void add_element_list_string(struct LIST_STRING* p_list, char* p_value_to_add)
@@ -19,7 +13,9 @@ void add_element_list_string(struct LIST_STRING* p_list, char* p_value_to_add)
      {
           strcpy(p_list->a_value, p_value_to_add);
 
-          struct LIST_STRING* t_list = create_list_string();
+          struct LIST_STRING* t_list = malloc(sizeof(struct LIST_STRING));
+
+          create_list_string(t_list);
 
           p_list->a_next = t_list;
      }
@@ -29,15 +25,17 @@ void add_element_list_string(struct LIST_STRING* p_list, char* p_value_to_add)
 
 void add_first_element_list_string(struct LIST_STRING* p_list, char* p_value_to_add)
 {
-     struct LIST_STRING* t_list = create_list_string();
+     struct LIST_STRING t_list;
 
-     t_list->a_value = p_list->a_value;
+     create_list_string(&t_list);
+
+     t_list.a_value = p_list->a_value;
 
      p_list->a_value = p_value_to_add;
 
-     t_list->a_next = p_list->a_next;
+     t_list.a_next = p_list->a_next;
 
-     p_list->a_next = t_list;
+     p_list->a_next = &t_list;
 }
 
 void remove_first_element_list_string(struct LIST_STRING* p_list)

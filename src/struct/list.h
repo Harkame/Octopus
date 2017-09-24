@@ -12,13 +12,15 @@ typedef struct LIST
      struct LIST* a_next;
 } LIST;
 
-struct LIST* create_list();
+void create_list(struct LIST* p_list_to_create);
 
 void add_element_list(struct LIST* p_LIST, void* p_value_to_add);
 
 void add_first_element_list(struct LIST* p_LIST, void* p_value_to_add);
 
-void remove_first_element_list(struct LIST* p_LIST);
+void remove_element_list(struct LIST* p_LIST, int p_index);
+
+void remove_element_list_aux(struct LIST* p_LIST, int p_intex, int p_count);
 
 void* get_element_list(struct LIST* p_list, int p_index);
 
