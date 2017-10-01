@@ -196,39 +196,44 @@ void initialize_windows()
     box(g_window_form, ACS_VLINE, ACS_HLINE);
 }
 
-void initialize_options(int p_count_arguments, char** p_arguments_values)
+void initialize_options(struct OPTIONS* p_options)
 {
-    int t_result_option;
-    int t_option_index = 0;
-    struct option t_long_options[] =
-    {
-        {PARAMETERS_HELP, 0, NULL, 0},
-        {PARAMETERS_PORT, 1, NULL, 0},
-        {PARAMETERS_IP, 1, NULL, 0},
-        {NULL, 0, NULL, 0}
-    };
+     int t_result_option = 0;
+     int t_option_index = 0;
+     struct option t_long_options[] =
+     {
+          {"help", 0, NULL, 0},
+          {NULL, 0, NULL, 0}
+     };
 
-    while ((t_result_option = getopt_long(p_count_arguments, p_arguments_values, ":",
-    t_long_options, &t_option_index)) != -1)
-    {
-    switch(t_result_option)
-    {
-        case 0:
-            if(strcasecmp(PARAMETERS_HELP, optarg))
-                help();
-            else if(strcasecmp(PARAMETERS_PORT, optarg))
-                g_port = atoi(optarg);
-            else if(strcasecmp(PARAMETERS_IP, optarg))
-                strcpy(g_ip, optarg);
-            else
-                help();
-            break;
+     while ((t_result_option = getopt_long(p_options->a_options_count, p_options->a_options_values, "c:p:",
+     t_long_options, &t_option_index)) != -1)
+     {
+          switch(t_result_option)
+          {
+               case 0:
+                    //if(strcasecmp("help", optarg))
+                        //help();
+               break;
 
-            default:
-                help();
-            break;
-        }
-    }
+               case 'i':
+               break;
+
+               case 'p':
+                    g_port = atoi(optarg);
+               break;
+
+               case 'd':
+               break;
+
+               case 'f':
+               break;
+
+               default:
+                    //help();
+               break;
+          }
+     }
 }
 
 void refresh_windows()
@@ -250,7 +255,11 @@ void refresh_windows()
 
 int main(int p_count_arguments, char** p_arguments_values)
 {
-    initialize_options(p_count_arguments, p_arguments_values);
+     struct OPTIONS t_options;
+    t_options.a_options_count = p_count_arguments;
+    t_options.a_options_values = p_arguments_values;
+
+    initialize_options(&t_options);
 
      foo();
 

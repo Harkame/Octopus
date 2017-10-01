@@ -89,12 +89,13 @@ int handle_input(struct input_line* p_buffer, char* target, int max_len, int p_k
         case KEY_RESIZE:
             re_initialize_windows();
 
-            refresh_windows();
-
             print_textarea();
+
+            refresh_windows();
         break;
 
         case ERR:
+            exit_program();
         break;
 
         case KEY_LEFT:

@@ -164,6 +164,7 @@ void foo()
 
     while(1)
     {
+        /*
         pthread_mutex_lock(&g_mutex);
 
         int t_index = size_list_int(&g_list);
@@ -177,33 +178,24 @@ void foo()
         }
 
         pthread_mutex_unlock(&g_mutex);
+        */
+        int t_index = 0;
 
         char t_receive_buffer[BUFSIZ];
+        socklen_t t_socketlen = sizeof(t_sockaddr_in_client);
+        g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, &t_socketlen);
 
-        g_connections[t_index]->a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, (socklen_t*) sizeof(t_sockaddr_in_client));
+        if(g_connections[t_index]->a_socket == -1)
+          exit_program();
 
-        ssize_t t_readed_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, MSG_WAITALL);
+        ssize_t t_readed_size = recv(g_connections[t_index]->a_socket, t_receive_buffer, BUFSIZ, 0);
 
         if(t_readed_size == 0)
         {
-            pthread_mutex_lock(&g_mutex);
-
-            add_first_element_list_int(&g_list, g_count_client);
-
-            pthread_mutex_unlock(&g_mutex);
-
             exit_program();
         }
         else if(t_readed_size == -1)
         {
-            fprintf(stdout, "Connection lost : %d (%zu)\n", g_count_client, t_readed_size);
-
-            pthread_mutex_lock(&g_mutex);
-
-            add_first_element_list_int(&g_list, g_count_client);
-
-            pthread_mutex_unlock(&g_mutex);
-
             exit_program();
         }
         else
@@ -244,20 +236,12 @@ void foo()
 
 void help()
 {
-    pthread_mutex_lock(&g_mutex);
+    close_windows();
 
-    erase();
-
-    endwin();
-
-    for(int t_index = 0; t_index < g_count_client; t_index++)
-        close(g_connections[t_index]->a_socket);
-
-    pthread_mutex_unlock(&g_mutex);
-
-    pthread_mutex_destroy(&g_mutex);
+    close_sockets();
 
     fprintf(stdout, HELP_OPTIONS_PORT);
+
     exit(1);
 }
 
@@ -344,7 +328,7 @@ void re_initialize_windows()
     pthread_mutex_unlock(&g_mutex);
 }
 
-void exit_program()
+void close_windows()
 {
     pthread_mutex_lock(&g_mutex);
 
@@ -352,16 +336,28 @@ void exit_program()
 
     endwin();
 
+    pthread_mutex_unlock(&g_mutex);
+}
+
+void close_sockets()
+{
+    pthread_mutex_lock(&g_mutex);
+
     for(int t_index = 0; t_index < g_count_client; t_index++)
         close(g_connections[t_index]->a_socket);
 
     pthread_mutex_unlock(&g_mutex);
+}
 
-    pthread_mutex_destroy(&g_mutex);
+void exit_program()
+{
+    close_windows();
 
-    perror("exit_programm: ");
+    close_sockets();
 
-    exit(1);
+    perror("exit_program : ");
+
+    exit(errno);
 }
 
 void initialize_services()

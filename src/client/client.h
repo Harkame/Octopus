@@ -27,6 +27,7 @@
 #include "../struct/list_string.h"
 #include "../struct/list_int.h"
 #include "../struct/input_line.h"
+#include "../struct/options.h"
 
 #define DEFAULT_PORT            6666
 #define DEFAULT_IP                  "127.0.0.1"
@@ -81,7 +82,7 @@ void initialize_windows();
 */
 void re_initialize_windows();
 
-void initialize_options(int, char**);
+void initialize_options(struct OPTIONS*);
 
 void refresh_windows();
 

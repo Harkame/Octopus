@@ -24,6 +24,7 @@
 #include <netinet/tcp.h>
 #include <features.h>
 #include <curses.h>
+#include <errno.h>
 
 #include "../struct/list.h"
 #include "../struct/list_int.h"
@@ -44,6 +45,9 @@
 #define MESSAGE_NEW_CONNEXION "New connection (%d)\n"
 
 #define HELP_OPTIONS_PORT "-p port (default : 6666)\n"
+
+#define ERROR_RECV_CONNECTION_LOST "connection lost"
+#define ERROR_RECV_CONNECTION_OTHER "error on recv"
 
 #define PARAMETERS_HELP "help"
 #define PARAMETERS_PORT "port"
@@ -87,6 +91,8 @@ void initialize_services();
 
 void initialize_connections();
 
+void initialize_options(struct OPTIONS*);
+
 void initialize_server_socket(int p_server_socket_to_initialize);
 
 /*
@@ -97,7 +103,9 @@ void initialize_server_socket(int p_server_socket_to_initialize);
 */
 void re_initialize_windows();
 
-void initialize_options(struct OPTIONS*);
+void close_windows();
+
+void close_sockets();
 
 void parse_command(struct OPTIONS*, char*);
 
