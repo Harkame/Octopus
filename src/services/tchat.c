@@ -26,6 +26,7 @@ void* tchat_handler(void* p_client_number)
 
           ssize_t t_receved_bytes = 1;
 
+/*
           while(1)
           {
                t_set_save = t_set;
@@ -39,7 +40,6 @@ void* tchat_handler(void* p_client_number)
 
                     if(t_index == g_connections[t_client_number]->a_socket)
                     {
-                         t_receved_bytes = recv(g_connections[t_client_number]->a_socket, t_receive_buffer, BUFSIZ, 0);
 
                          goto end;
 
@@ -49,8 +49,9 @@ void* tchat_handler(void* p_client_number)
                     }
                }
           }
+          */
 
-          end:
+          t_receved_bytes = recv(g_connections[t_client_number]->a_socket, t_receive_buffer, BUFSIZ, 0);
 
           sprintf(t_buffer, "%d", t_client_number);
           strcat(t_buffer, " : ");
@@ -86,7 +87,7 @@ void* tchat_handler(void* p_client_number)
 
                pthread_mutex_lock(&g_mutex);
 
-               add_element_list_string(&g_list_string,t_buffer);
+               add_element_list_string(&g_list_string, t_buffer);
 
                pthread_mutex_unlock(&g_mutex);
 
