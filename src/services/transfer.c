@@ -13,7 +13,6 @@ void* transfer_handler(void* p_client_number)
 
      char t_buffer[BUFSIZ] = {'\0'};
 
-
      while(1)
      {
           ssize_t t_receved_bytes = recv(g_connections[t_client_number]->a_socket, t_receive_buffer, BUFSIZ, 0);
@@ -65,12 +64,6 @@ void* transfer_handler(void* p_client_number)
                FILE* p_file = fopen(t_receive_buffer, "r+");
                send_file(g_connections[t_client_number]->a_socket, p_file);
                fclose(p_file);
-
-               pthread_mutex_lock(&g_mutex);
-
-               add_element_list_string(&g_list_string, "Fini");
-
-               pthread_mutex_unlock(&g_mutex);
 
                memset(t_buffer, 0, strlen(t_buffer));
                memset(t_receive_buffer, 0, strlen(t_receive_buffer));

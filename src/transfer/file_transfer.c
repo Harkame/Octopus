@@ -2,6 +2,11 @@
 
 void exit_program();
 
+extern int g_count_client;
+extern pthread_mutex_t g_mutex;
+extern struct LIST_STRING g_list_string;
+extern struct CONNECTION* g_connections[];
+
 void send_file(const int p_socket, FILE* p_file_to_send)
 {
           struct stat t_stat;
@@ -11,24 +16,23 @@ void send_file(const int p_socket, FILE* p_file_to_send)
           if(fstat(fd, &t_stat) == -1)
                exit_program();
 
-          char t_file_size[BUFSIZ];
+          char t_buffer[BUFSIZ];
+          memset(t_buffer, 0, BUFSIZ);
 
-          sprintf(t_file_size, "%ld", t_stat.st_size);
+          sprintf(t_buffer, "%ld", t_stat.st_size);
 
-          if(send(p_socket, t_file_size, strlen(t_file_size), 0) == -1)
+          if(send(p_socket, t_buffer, sizeof(t_buffer), 0) == -1)
                exit_program();
 
           int t_rest_to_send = t_stat.st_size;
           int t_bytes_sended;
-
-          char t_buffer[BUFSIZ];
-
+          memset(t_buffer, 0, BUFSIZ);
           while(t_rest_to_send > 0)
           {
                     memset(t_buffer, 0, BUFSIZ);
                     fread(t_buffer, 1, BUFSIZ, p_file_to_send);
 
-                    t_bytes_sended = send(p_socket, t_buffer, BUFSIZ, 0);
+                    t_bytes_sended = send(p_socket, t_buffer, strlen(t_buffer), 0);
 
                     t_rest_to_send -= t_bytes_sended;
           }
@@ -36,51 +40,20 @@ void send_file(const int p_socket, FILE* p_file_to_send)
 
 void receive_file(const int p_socket, FILE* p_file_to_receive)
 {
-     extern int g_count_client;
-     extern pthread_mutex_t g_mutex;
-     extern struct LIST_STRING g_list_string;
-     extern struct CONNECTION* g_connections[];
-
      char t_buffer[BUFSIZ];
-     pthread_mutex_lock(&g_mutex);
 
-     add_element_list_string(&g_list_string, "Attend taille");
+     recv(p_socket, t_buffer, BUFSIZ, MSG_WAITALL);
 
-     pthread_mutex_unlock(&g_mutex);
-
-     adjust_list_string();
-
-     print_textarea();
-
-     refresh_windows();
-
-     recv(p_socket, t_buffer, BUFSIZ, 0);
-
-
-
-     int t_file_size = atoi(t_buffer);
+     off_t t_file_size = atoi(t_buffer);
 
      if(t_file_size <= 0)
           exit_program();
 
-          pthread_mutex_lock(&g_mutex);
-
-          add_element_list_string(&g_list_string, "g la taille");
-
-          pthread_mutex_unlock(&g_mutex);
-
-          adjust_list_string();
-
-          print_textarea();
-
-          refresh_windows();
-
-     size_t t_rest_to_receive = t_file_size;
-     size_t t_receved_length;
+     int t_rest_to_receive = t_file_size;
 
      while(t_rest_to_receive > 0)
      {
-          t_receved_length = recv(p_socket, t_buffer, BUFSIZ, 0);
+          int t_receved_length = recv(p_socket, t_buffer, BUFSIZ, 0);
 
           switch(t_receved_length)
           {
