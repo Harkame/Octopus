@@ -34,6 +34,8 @@
 #include "../struct/options.h"
 
 #include "../services/tchat.h"
+#include "../services/system.h"
+#include "../services/transfer.h"
 
 #include "../transfer/file_transfer.h"
 

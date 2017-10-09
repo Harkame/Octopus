@@ -80,11 +80,11 @@ void* write_handler()
 
 void exit_program()
 {
-    endwin();
-
-    erase();
+    close_windows();
 
     close(g_socket);
+
+    perror("exit_program");
 
     exit(0);
 }
@@ -117,10 +117,7 @@ void foo()
      g_socket = socket(AF_INET , SOCK_STREAM , 0);
 
      if (g_socket == -1)
-     {
-          perror("socket");
           exit_program();
-     }
 
      t_sockaddr_in_client.sin_addr.s_addr = inet_addr(g_ip);
      t_sockaddr_in_client.sin_family            = AF_INET;
@@ -129,13 +126,62 @@ void foo()
      if(connect(g_socket , (struct sockaddr *)&t_sockaddr_in_client, sizeof(t_sockaddr_in_client)) < 0)
           exit_program();
 
+    struct input_line linep_bufferfer;
+    make_input_line(&linep_bufferfer);
+
+    send(g_socket, "transfer", BUFSIZ, 0);
+
+    while(1)
+    {
+        char t_readed_line[BUFSIZ];
+
+        int t_readed_length = get_line_non_blocking(&linep_bufferfer, t_readed_line, BUFSIZ);
+
+        if(t_readed_length > 0)
+        {
+            if(strcmp(t_readed_line, "exit") == 0)
+            exit_program();
+
+            pthread_mutex_lock(&g_mutex);
+
+            add_element_list_string(&g_list_string, t_readed_line);
+
+            pthread_mutex_unlock(&g_mutex);
+
+            adjust_list_string();
+
+            print_textarea();
+
+            send(g_socket, t_readed_line, strlen(t_readed_line), 0);
+
+            FILE* t_file = fopen("/home/harkame/yolo/test.txt", "w+");
+
+            receive_file(g_socket, t_file);
+
+            fclose(t_file);
+
+            refresh_windows();
+        }
+
+        render_line(&linep_bufferfer);
+
+        pthread_mutex_lock(&g_mutex);
+
+        move(LINES - 2, 1);
+
+        pthread_mutex_unlock(&g_mutex);
+    }
+
+/*
     if(pthread_create(&g_write_thread, NULL, (void*) write_handler, NULL) == -1)
         exit_program();
 
     if(pthread_create(&g_read_thread, NULL, (void*) read_handler, NULL) == -1)
         exit_program();
 
-    pthread_join(g_read_thread, NULL);
+    if(pthread_join(g_read_thread, NULL) == -1)
+        exit_program();
+        */
 }
 
 void help()
@@ -162,6 +208,17 @@ void print_textarea()
 
     for(int t_index = 0; t_index < size_list_string(&g_list_string); t_index++)
         mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]);
+
+    pthread_mutex_unlock(&g_mutex);
+}
+
+void close_windows()
+{
+    pthread_mutex_lock(&g_mutex);
+
+    erase();
+
+    endwin();
 
     pthread_mutex_unlock(&g_mutex);
 }

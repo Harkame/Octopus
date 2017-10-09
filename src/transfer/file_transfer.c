@@ -1,24 +1,22 @@
 #include "file_transfer.h"
 
+void exit_program();
+
 void send_file(const int p_socket, FILE* p_file_to_send)
 {
           struct stat t_stat;
 
-          if(stat((char*) p_file_to_send, &t_stat) == -1)
-          {
-                    //errno = 1;
+          int fd = fileno(p_file_to_send);
 
-                    return;
-          }
+          if(fstat(fd, &t_stat) == -1)
+               exit_program();
 
           char t_file_size[BUFSIZ];
 
-          if(send(p_socket, t_file_size, t_stat.st_size, 0) == -1)
-          {
-                    //errno = 1;
+          sprintf(t_file_size, "%ld", t_stat.st_size);
 
-                    return;
-          }
+          if(send(p_socket, t_file_size, strlen(t_file_size), 0) == -1)
+               exit_program();
 
           int t_rest_to_send = t_stat.st_size;
           int t_bytes_sended;
@@ -28,8 +26,7 @@ void send_file(const int p_socket, FILE* p_file_to_send)
           while(t_rest_to_send > 0)
           {
                     memset(t_buffer, 0, BUFSIZ);
-                    if(fread(t_buffer,BUFSIZ,1, p_file_to_send) == 0)
-                         exit(1);
+                    fread(t_buffer, 1, BUFSIZ, p_file_to_send);
 
                     t_bytes_sended = send(p_socket, t_buffer, BUFSIZ, 0);
 
@@ -37,47 +34,46 @@ void send_file(const int p_socket, FILE* p_file_to_send)
           }
 }
 
-void receive_file(const int p_socket, const char* p_directory)
+void receive_file(const int p_socket, FILE* p_file_to_receive)
 {
+     extern int g_count_client;
+     extern pthread_mutex_t g_mutex;
+     extern struct LIST_STRING g_list_string;
+     extern struct CONNECTION* g_connections[];
+
      char t_buffer[BUFSIZ];
-     memset(t_buffer, 0, BUFSIZ);
+     pthread_mutex_lock(&g_mutex);
 
-     strcpy(t_buffer, p_directory);
+     add_element_list_string(&g_list_string, "Attend taille");
 
-     FILE* t_file_to_receive = fopen(t_buffer, "w");
+     pthread_mutex_unlock(&g_mutex);
 
-     if(t_file_to_receive == NULL)
-     {
-          //errno = 1;
+     adjust_list_string();
 
-          return;
-     }
+     print_textarea();
 
-     if(freopen(NULL, "w+", t_file_to_receive) == NULL)
-          exit(1);
-
-     memset(t_buffer, 0, BUFSIZ);
+     refresh_windows();
 
      recv(p_socket, t_buffer, BUFSIZ, 0);
+
+
 
      int t_file_size = atoi(t_buffer);
 
-     recv(p_socket, t_buffer, BUFSIZ, 0);
+     if(t_file_size <= 0)
+          exit_program();
 
-     char t_file_name[BUFSIZ];
+          pthread_mutex_lock(&g_mutex);
 
-     strcpy(t_buffer, t_file_name);
+          add_element_list_string(&g_list_string, "g la taille");
 
-     if(t_file_size == -1)
-     {
-          //errno = 1;
-          return;
-     }
-     else if(t_file_size == 0)
-     {
-          //errno = 1;
-          return;
-     }
+          pthread_mutex_unlock(&g_mutex);
+
+          adjust_list_string();
+
+          print_textarea();
+
+          refresh_windows();
 
      size_t t_rest_to_receive = t_file_size;
      size_t t_receved_length;
@@ -89,18 +85,15 @@ void receive_file(const int p_socket, const char* p_directory)
           switch(t_receved_length)
           {
                case 0:
-                    //errno = 1;
-                    return;
+                    exit_program();
                break;
 
                case -1:
-                    //errno = 1;
-                    return;
+                    exit_program();
                break;
           }
 
-          if(fwrite(t_buffer, sizeof(char), t_receved_length, t_file_to_receive) != t_receved_length)
-                    fprintf(stderr, "error fwrite\n");
+          fwrite(t_buffer, sizeof(char), t_receved_length, p_file_to_receive);
 
           t_rest_to_receive -= t_receved_length;
      }
@@ -138,15 +131,15 @@ void send_directory(const int p_socket, const char* p_directory_path_to_send)
                {
                     strcat(t_buffer, t_directory_entry->d_name);
                     send(p_socket, t_buffer, strlen(t_buffer) * sizeof(char), 0);
-                    FILE* t_file_to_receive = fopen(t_buffer, "w");
+                    FILE* p_file_to_receive = fopen(t_buffer, "w");
 
-                    if(t_file_to_receive == NULL)
+                    if(p_file_to_receive == NULL)
                     {
                          //errno = 1;
                          return;
                     }
 
-                    send_file(p_socket, t_file_to_receive);
+                    send_file(p_socket, p_file_to_receive);
                }
           }
      }

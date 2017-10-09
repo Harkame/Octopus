@@ -82,6 +82,8 @@ void initialize_windows();
 */
 void re_initialize_windows();
 
+void close_windows();
+
 void initialize_options(struct OPTIONS*);
 
 void refresh_windows();

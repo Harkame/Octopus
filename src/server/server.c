@@ -223,7 +223,16 @@ void foo()
 
             refresh_windows();
 
-            pthread_create(&g_threads[t_index], NULL, g_services[0]->a_service_handler, (void*) (intptr_t) t_index);
+            if(strcasecmp(t_receive_buffer, "system") == 0)
+                pthread_create(&g_threads[t_index], NULL, g_services[1]->a_service_handler, (void*) (intptr_t) t_index);
+            else if(strcasecmp(t_receive_buffer, "tchat") == 0)
+                pthread_create(&g_threads[t_index], NULL, g_services[0]->a_service_handler, (void*) (intptr_t) t_index);
+            else if(strcasecmp(t_receive_buffer, "transfer") == 0)
+                pthread_create(&g_threads[t_index], NULL, g_services[2]->a_service_handler, (void*) (intptr_t) t_index);
+            else
+                close(g_connections[t_index]->a_socket);
+
+            memset(t_receive_buffer, 0, BUFSIZ);
         }
 
         pthread_mutex_lock(&g_mutex);
@@ -366,6 +375,8 @@ void initialize_services()
         g_services[t_index] = create_service();
 
     g_services[0]->a_service_handler = tchat_handler;
+    g_services[1]->a_service_handler = system_handler;
+    g_services[2]->a_service_handler = transfer_handler;
 }
 
 void initialize_connections()

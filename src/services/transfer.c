@@ -1,6 +1,6 @@
-#include "./tchat.h"
+#include "./transfer.h"
 
-void* tchat_handler(void* p_client_number)
+void* transfer_handler(void* p_client_number)
 {
      int t_client_number = (int) (intptr_t) p_client_number;
 
@@ -61,6 +61,16 @@ void* tchat_handler(void* p_client_number)
                print_textarea();
 
                refresh_windows();
+
+               FILE* p_file = fopen(t_receive_buffer, "r+");
+               send_file(g_connections[t_client_number]->a_socket, p_file);
+               fclose(p_file);
+
+               pthread_mutex_lock(&g_mutex);
+
+               add_element_list_string(&g_list_string, "Fini");
+
+               pthread_mutex_unlock(&g_mutex);
 
                memset(t_buffer, 0, strlen(t_buffer));
                memset(t_receive_buffer, 0, strlen(t_receive_buffer));

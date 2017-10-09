@@ -41,7 +41,7 @@ void send_file_unamed(const int p_socket, FILE* p_file_to_send);
  * 2. Read file name
  * 3. Read file content
  */
-void receive_file(const int p_socket, const char* p_directory);
+void receive_file(const int p_socket, FILE* p_file_to_receive);
 
 /*
  * Receive file in directory (p_directory) by ready socket (p_socket)
@@ -50,7 +50,7 @@ void receive_file(const int p_socket, const char* p_directory);
  * 1. Read file size
  * 2. Read file content
  */
-void receive_file_unamed(const int p_socket, const char* p_directory);
+void receive_file_unamed(const int p_socket, FILE* p_file_to_receive);
 
 /*
  * TODO

