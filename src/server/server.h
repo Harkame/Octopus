@@ -33,9 +33,9 @@
 #include "../struct/connection.h"
 #include "../struct/options.h"
 
-#include "../services/tchat.h"
-#include "../services/system.h"
-#include "../services/transfer.h"
+#include "../services/tchat/tchat.h"
+#include "../services/system/system.h"
+#include "../services/transfer/transfer.h"
 
 #include "../transfer/file_transfer.h"
 
@@ -70,7 +70,7 @@ WINDOW* g_window_form;
 
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-pthread_t g_command_thread;;
+pthread_t g_command_thread;
 
 pthread_t g_threads [10];
 

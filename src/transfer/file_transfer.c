@@ -113,6 +113,8 @@ void send_directory(const int p_socket, const char* p_directory_path_to_send)
                     }
 
                     send_file(p_socket, p_file_to_receive);
+
+                    fclose(p_file_to_receive);
                }
           }
      }

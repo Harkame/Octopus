@@ -41,7 +41,7 @@ void add_last_element_list_int(struct LIST_INT* p_list_int, int p_value_to_add)
 
 void remove_element_list_int(struct LIST_INT* p_list_int, int p_index)
 {
-     return remove_element_list_int_aux(p_list_int, p_index, 0);
+     remove_element_list_int_aux(p_list_int, p_index, 0);
 }
 
 void remove_element_list_int_aux(struct LIST_INT* p_list_int, int p_index, int p_count)
@@ -60,7 +60,7 @@ void remove_element_list_int_aux(struct LIST_INT* p_list_int, int p_index, int p
           p_list_int->a_next = t_list;
      }
      else
-          return remove_element_list_int_aux(p_list_int->a_next, p_index, p_count + 1);
+          remove_element_list_int_aux(p_list_int->a_next, p_index, p_count + 1);
 }
 
 signed int get_element_list_int(struct LIST_INT* p_list, int p_index)

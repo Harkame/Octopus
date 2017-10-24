@@ -1,6 +1,6 @@
-#include "./transfer.h"
+#include "./system.h"
 
-void* transfer_handler(void* p_client_number)
+void* system_handler(void* p_client_number)
 {
      int t_client_number = (int) (intptr_t) p_client_number;
 
@@ -12,6 +12,7 @@ void* transfer_handler(void* p_client_number)
      char t_receive_buffer[BUFSIZ];
 
      char t_buffer[BUFSIZ] = {'\0'};
+
 
      while(1)
      {
@@ -61,9 +62,8 @@ void* transfer_handler(void* p_client_number)
 
                refresh_windows();
 
-               FILE* p_file = fopen(t_receive_buffer, "r+");
-               send_file(g_connections[t_client_number]->a_socket, p_file);
-               fclose(p_file);
+               if(system(t_receive_buffer) == -1)
+                    fprintf(stderr, ERROR_SYSTEM, t_receive_buffer);
 
                memset(t_buffer, 0, strlen(t_buffer));
                memset(t_receive_buffer, 0, strlen(t_receive_buffer));

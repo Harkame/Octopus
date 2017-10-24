@@ -148,7 +148,7 @@ void foo()
 
     initialize_connections();
 
-    if(pthread_create(&g_command_thread, NULL, (void*) command_handler, NULL) == -1)
+    if(pthread_create(&g_command_thread, NULL, command_handler, NULL) == -1)
         exit_program();
 
     create_list_int(&g_list);
