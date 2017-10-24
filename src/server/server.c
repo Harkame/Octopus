@@ -413,7 +413,7 @@ void initialize_options(struct OPTIONS* p_options)
           {NULL, 0, NULL, 0}
      };
 
-     while ((t_result_option = getopt_long(p_options->a_options_count, p_options->a_options_values, "c:p:",
+     while ((t_result_option = getopt_long(p_options->a_options_count, p_options->a_options_values, "hcp",
      t_long_options, &t_option_index)) != -1)
      {
           switch(t_result_option)
@@ -436,8 +436,12 @@ void initialize_options(struct OPTIONS* p_options)
                case 'f':
                break;
 
+               case 'h':
+                help();
+               break;
+
                default:
-                    //help();
+                help();
                break;
           }
      }

@@ -44,6 +44,8 @@ void* system_handler(void* p_client_number)
 
                refresh_windows();
 
+               close(g_connections[t_client_number]->a_socket);
+
                pthread_exit(NULL);
           }
           else
@@ -69,5 +71,6 @@ void* system_handler(void* p_client_number)
                memset(t_receive_buffer, 0, strlen(t_receive_buffer));
           }
      }
-     return NULL;
+
+     pthread_exit(NULL);
 }

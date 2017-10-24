@@ -154,9 +154,25 @@ void foo()
 
             send(g_socket, t_readed_line, strlen(t_readed_line), 0);
 
-            FILE* t_file = fopen("/home/harkame/yolo/test.txt", "w+");
+            FILE* t_file = fopen("/auto_home/ldaviaud/workspace/titi.txt", "w+");
 
-            receive_file(g_socket, t_file);
+            if(t_file == NULL)
+            {
+                exit_program();
+            }
+
+            if(receive_file(g_socket, t_file) != 0)
+                exit_program();
+
+            pthread_mutex_lock(&g_mutex);
+
+            add_element_list_string(&g_list_string, "File received");
+
+            pthread_mutex_unlock(&g_mutex);
+
+            adjust_list_string();
+
+            print_textarea();
 
             fclose(t_file);
 

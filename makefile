@@ -1,5 +1,5 @@
 MKDIR           = mkdir -p
-GCC             = gcc -ansi -pedantic-errors -W -Wall -Werror -Wfatal-errors  -std=gnu99 -O3
+GCC             = gcc -ansi -Wpedantic -pedantic -pedantic-errors -W -Wall -Wextra -Werror -Wfatal-errors  -std=gnu99 -O3
 OPTIONS         = -pthread -D_GNU_SOURCE -lncurses
 LIBRARY_OPTIONS = -shared -fPIC
 LIBRARY_FILES   = ${LIBRARY_FILES_STRUCTURES}

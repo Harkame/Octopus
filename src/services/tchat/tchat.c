@@ -66,5 +66,6 @@ void* tchat_handler(void* p_client_number)
                memset(t_receive_buffer, 0, strlen(t_receive_buffer));
           }
      }
-     return NULL;
+     
+     pthread_exit(NULL);
 }

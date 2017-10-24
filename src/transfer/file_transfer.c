@@ -1,85 +1,87 @@
 #include "file_transfer.h"
 
-void exit_program();
-
 extern int g_count_client;
 extern pthread_mutex_t g_mutex;
 extern struct LIST_STRING g_list_string;
 extern struct CONNECTION* g_connections[];
 
-void send_file(const int p_socket, FILE* p_file_to_send)
+int send_file(const int p_socket, FILE* p_file_to_send)
 {
           struct stat t_stat;
 
-          int fd = fileno(p_file_to_send);
+          int t_file_descriptor = fileno(p_file_to_send);
 
-          if(fstat(fd, &t_stat) == -1)
-               exit_program();
+          if(fstat(t_file_descriptor, &t_stat) != 0)
+               return errno;
 
           char t_buffer[BUFSIZ];
           memset(t_buffer, 0, BUFSIZ);
 
           sprintf(t_buffer, "%ld", t_stat.st_size);
 
-          if(send(p_socket, t_buffer, sizeof(t_buffer), 0) == -1)
-               exit_program();
+          if(send(p_socket, t_buffer, sizeof(t_buffer), 0) != 0)
+               return errno;
 
-          int t_rest_to_send = t_stat.st_size;
-          int t_bytes_sended;
+          int t_remaining_bytes_to_send = t_stat.st_size;
+          int t_sended_bytes;
           memset(t_buffer, 0, BUFSIZ);
-          while(t_rest_to_send > 0)
+          while(t_remaining_bytes_to_send > 0)
           {
                     memset(t_buffer, 0, BUFSIZ);
                     fread(t_buffer, 1, BUFSIZ, p_file_to_send);
 
-                    t_bytes_sended = send(p_socket, t_buffer, strlen(t_buffer), 0);
+                    t_sended_bytes = send(p_socket, t_buffer, strlen(t_buffer), 0);
 
-                    t_rest_to_send -= t_bytes_sended;
+                    t_remaining_bytes_to_send -= t_sended_bytes;
           }
+
+     return 0;
 }
 
-void receive_file(const int p_socket, FILE* p_file_to_receive)
+int receive_file(const int p_socket, FILE* p_file_to_receive)
 {
      char t_buffer[BUFSIZ];
 
-     recv(p_socket, t_buffer, BUFSIZ, MSG_WAITALL);
+     recv(p_socket, t_buffer, BUFSIZ, 0);
 
      off_t t_file_size = atoi(t_buffer);
 
      if(t_file_size <= 0)
-          exit_program();
+          return errno;
 
-     int t_rest_to_receive = t_file_size;
+     int t_remaining_bytes_to_receive = t_file_size;
 
-     while(t_rest_to_receive > 0)
+     while(t_remaining_bytes_to_receive > 0)
      {
           int t_receved_length = recv(p_socket, t_buffer, BUFSIZ, 0);
 
           switch(t_receved_length)
           {
                case 0:
-                    exit_program();
+                    return errno;
                break;
 
                case -1:
-                    exit_program();
+                    return errno;
                break;
           }
 
           fwrite(t_buffer, sizeof(char), t_receved_length, p_file_to_receive);
 
-          t_rest_to_receive -= t_receved_length;
+          t_remaining_bytes_to_receive -= t_receved_length;
      }
+
+     return 0;
 }
 
-void send_directory(const int p_socket, const char* p_directory_path_to_send)
+int send_directory(const int p_socket, const char* p_directory_path_to_send)
 {
      DIR* t_directory_to_send = opendir(p_directory_path_to_send);
 
      if(t_directory_to_send == NULL)
      {
           //errno = 1;
-          return;
+          return errno;
      }
 
      struct dirent* t_directory_entry;
@@ -109,7 +111,7 @@ void send_directory(const int p_socket, const char* p_directory_path_to_send)
                     if(p_file_to_receive == NULL)
                     {
                          //errno = 1;
-                         return;
+                         return errno;
                     }
 
                     send_file(p_socket, p_file_to_receive);
@@ -122,4 +124,6 @@ void send_directory(const int p_socket, const char* p_directory_path_to_send)
      send(p_socket, "-1", 2 * sizeof(char), 0);
 
      closedir(t_directory_to_send);
+
+     return 0;
 }

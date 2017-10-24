@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
+#include <errno.h>
 
 /*
  * Send file (p_file_to_send) by ready socket (p_socket)
@@ -18,7 +19,7 @@
  * MODIFICATION :
  * fwrite on p_file_to_send
  */
-void send_file(const int p_socket, FILE* p_file_to_send);
+int send_file(const int p_socket, FILE* p_file_to_send);
 
 /*
  * Send file (p_file_to_send) by ready socket (p_socket)
@@ -31,7 +32,7 @@ void send_file(const int p_socket, FILE* p_file_to_send);
  * MODIFICATION :
  * fwrite on p_file_to_send
  */
-void send_file_unamed(const int p_socket, FILE* p_file_to_send);
+int send_file_unamed(const int p_socket, FILE* p_file_to_send);
 
 /*
  * Receive file in directory (p_directory) by ready socket (p_socket)
@@ -41,7 +42,7 @@ void send_file_unamed(const int p_socket, FILE* p_file_to_send);
  * 2. Read file name
  * 3. Read file content
  */
-void receive_file(const int p_socket, FILE* p_file_to_receive);
+int receive_file(const int p_socket, FILE* p_file_to_receive);
 
 /*
  * Receive file in directory (p_directory) by ready socket (p_socket)
@@ -51,7 +52,7 @@ void receive_file(const int p_socket, FILE* p_file_to_receive);
  * 2. Receive file name
  * 3. Receive file content
  */
-void receive_file_unamed(const int p_socket, FILE* p_file_to_receive);
+int receive_file_unamed(const int p_socket, FILE* p_file_to_receive);
 
 /*
  * Receive file in directory (p_directory) by ready socket (p_socket)
@@ -60,6 +61,6 @@ void receive_file_unamed(const int p_socket, FILE* p_file_to_receive);
  * 1. Receive file size
  * 2. Receive file content
  */
-void send_directory(const int p_socket, const char* p_directory_path_to_send);
+int send_directory(const int p_socket, const char* p_directory_path_to_send);
 
 #endif
