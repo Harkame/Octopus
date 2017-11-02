@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <error.h>
+#include <stdio.h>
 
 #ifndef OK
      #define OK       0
@@ -17,7 +18,9 @@ typedef struct LIST
      struct LIST* a_next;
 } LIST;
 
-int list_create(LIST* p_list_to_create);
+void list_initialize(LIST* p_list_to_initialize, void* p_first_value);
+
+void list_delete(LIST* p_list_to_create);
 
 int list_add_element(LIST* p_LIST, void* p_value_to_add, int p_index);
 
@@ -27,13 +30,15 @@ int list_add_first_element(LIST* p_LIST, void* p_value_to_add);
 
 int list_add_last_element(LIST* p_LIST, void* p_value_to_add);
 
-void list_remove_element(LIST* p_LIST, int p_index);
+int list_remove_element(LIST* p_LIST, int p_index);
 
-void list_remove_element_auxiliary(LIST* p_LIST, int p_intex, int p_count);
+int list_remove_element_auxiliary(LIST* p_LIST, int p_intex, int p_count);
 
 void* list_get_element(LIST* p_list, int p_index);
 
 void* list_get_element_auxiliary(LIST* p_list, int p_index, int p_count);
+
+int list_contains_element(LIST* p_list, void* p_value);
 
 int list_size(LIST* p_LIST);
 

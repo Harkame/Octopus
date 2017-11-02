@@ -110,8 +110,6 @@ void foo()
 
     refresh_windows();
 
-    list_create(&g_list);
-
     struct sockaddr_in t_sockaddr_in_client;
 
      g_socket = socket(AF_INET , SOCK_STREAM , 0);

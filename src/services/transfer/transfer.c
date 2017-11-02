@@ -22,21 +22,11 @@ void* transfer_handler(void* p_client_number)
                else
                     strcat(t_buffer, ERROR_RECV_CONNECTION_OTHER);
 
-               pthread_mutex_lock(&g_mutex);
+               close_connection(t_client_number);
 
-               g_count_client--;
-
-               close(g_connections[t_client_number].a_socket);
-
-               list_add_last_element(&g_list, t_buffer);
-
-               pthread_mutex_unlock(&g_mutex);
-
-               adjust_list();
+               add_message(t_buffer);
 
                print_textarea();
-
-               refresh_windows();
 
                close(g_connections[t_client_number].a_socket);
 
@@ -46,17 +36,9 @@ void* transfer_handler(void* p_client_number)
           {
                strcat(t_buffer, t_receive_buffer);
 
-               pthread_mutex_lock(&g_mutex);
-
-               list_add_last_element(&g_list, t_buffer);
-
-               pthread_mutex_unlock(&g_mutex);
-
-               adjust_list();
+               add_message(t_buffer);
 
                print_textarea();
-
-               refresh_windows();
 
                FILE* t_file = fopen(t_receive_buffer, "r");
 

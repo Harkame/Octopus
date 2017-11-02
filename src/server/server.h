@@ -61,28 +61,28 @@ typedef struct SERVICE
      void* (*a_service_handler)(void*);
 } SERVICE;
 
-int g_port = DEFAULT_VALUE_PORT;
+extern int g_port;
 
-CONNECTION g_connections[10];
+extern CONNECTION g_connections[];
 
-WINDOW* g_window_textarea;
-WINDOW* g_window_form;
+extern WINDOW* g_window_textarea;
+extern WINDOW* g_window_form;
 
-pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
+extern pthread_mutex_t g_mutex;
 
-pthread_t g_command_thread;
+extern pthread_t g_command_thread;
 
-pthread_t g_threads [10];
+extern pthread_t g_threads [];
 
-struct LIST g_list;
+extern LIST g_list;
 
-struct LIST g_list_int;
+extern LIST g_list_int;
 
-struct LIST g_list_options;
+extern LIST g_list_options;
 
-struct SERVICE* g_services[10];
+extern SERVICE* g_services[10];
 
-int g_count_client = 0;
+extern int g_count_client;
 
 /*
 * (Begin) initializations
@@ -123,6 +123,11 @@ void refresh_windows();
 /*
 * /!\ Protected by g_mutex
 */
+void add_message(char* p_message);
+
+/*
+* /!\ Protected by g_mutex
+*/
 void adjust_list();
 
 /*
@@ -138,6 +143,11 @@ void exit_program();
 void* command_handler();
 
 void print_grapical_error();
+
+/*
+* /!\ Protected by g_mutex
+*/
+int close_connection(int p_number_client);
 
 int main(int p_count_arguments, char** p_arguments_values);
 
