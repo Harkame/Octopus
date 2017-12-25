@@ -3,14 +3,14 @@ GCC                                  = gcc -ansi -Wpedantic -pedantic -pedantic-
 OPTIONS                         = -pthread -D_GNU_SOURCE -lncurses
 LIBRARY_OPTIONS        = -c
 LIBRARY_STRUCTURES = ./bin/struct/list/list.o ./bin/struct/input_line/input_line.o ./bin/struct/connection/connection.o ./bin/struct/options/options.o
-LIBRARY_SERVICES       = ./bin/services/tchat/tchat.o ./bin/services/system/system.o ./bin/services/transfer/transfer.o
+LIBRARY_SERVICES       = ./bin/services/tchat/tchat.o ./bin/services/system/system.o ./bin/services/common/transfer/common/transfer/transfer.o
 
 all: directory file clean
 
 directory:
 	${MKDIR} ./bin/server;
 	${MKDIR} ./bin/client;
-	${MKDIR} ./bin/transfer;
+	${MKDIR} ./bin/common/transfer;
 	${MKDIR} ./bin/struct;
 	${MKDIR} ./bin/struct/list;
 	${MKDIR} ./bin/struct/input_line;
@@ -19,25 +19,26 @@ directory:
 	${MKDIR} ./bin/services;
 	${MKDIR} ./bin/services/system;
 	${MKDIR} ./bin/services/tchat;
-	${MKDIR} ./bin/services/transfer;
+	${MKDIR} ./bin/
+	${MKDIR} ./bin/services/common/transfer;
 
-file: library services server client test
+file: clean library services server client test clean
 
 services:
 	${GCC} ./src/services/tchat/tchat.c ${OPTIONS} ${LIBRARY_OPTIONS} -o ./bin/services/tchat/tchat.o;
 	${GCC} ./src/services/system/system.c ${OPTIONS} ${LIBRARY_OPTIONS} -o ./bin/services/system/system.o;
-	${GCC} ./src/services/transfer/transfer.c ${OPTIONS} ${LIBRARY_OPTIONS} ./bin/transfer/file_transfer.o -o ./bin/services/transfer/transfer.o;
+	${GCC} ./src/services/transfer/transfer.c ${OPTIONS} ${LIBRARY_OPTIONS} ./bin/common/transfer/transfer.o -o ./bin/services/transfer/transfer.o;
 
 server:
-	${GCC} ./src/server/server.c ${OPTIONS} ${LIBRARY_STRUCTURES} ./bin/transfer/file_transfer.o ${LIBRARY_SERVICES} -o ./bin/server/server.out ;
+	${GCC} ./src/server/server.c ${OPTIONS} ${LIBRARY_STRUCTURES} ./bin/common/transfer/common/transfer/transfer.o ${LIBRARY_SERVICES} -o ./bin/server/server.out ;
 
 client:
-	${GCC} ./src/client/client.c ${OPTIONS} ./bin/transfer/file_transfer.o ${LIBRARY_STRUCTURES} -o ./bin/client/client.out;
+	${GCC} ./src/client/client.c ${OPTIONS} ./bin/common/transfer/common/transfer/transfer.o ${LIBRARY_STRUCTURES} -o ./bin/client/client.out;
 
-library: file_transfer struct
+library: file_common/transfer struct
 
-file_transfer:
-	${GCC} ./src/transfer/file_transfer.c ${LIBRARY_OPTIONS} -o ./bin/transfer/file_transfer.o -Wno-unused-result;
+file_common/transfer:
+	${GCC} ./src/common/transfer/transfer.c ${LIBRARY_OPTIONS} -o ./bin/common/transfer/transfer.o -Wno-unused-result;
 
 struct:
 	gcc ./src/struct/list/list.c ${LIBRARY_OPTIONS} ${OPTIONS} -o ./bin/struct/list/list.o;
@@ -49,5 +50,4 @@ test:
 	${GCC} ./test/struct/list/test_list.c ./bin/struct/list/list.o -o ./test/struct/list/test_list.out;
 
 clean:
-	rm -rf ./src/*/*.gch;
-	rm -rf ./test/*/*.gch;
+	find . -name "*.gch" -type f -delete

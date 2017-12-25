@@ -1,5 +1,5 @@
-#ifndef TRANSFER_H
-#define TRANSFER_H
+#ifndef _SERVICE_TRANSFER_H
+#define _SERVICE_TRANSFER_H
 
 #include "../../server/server.h"
 

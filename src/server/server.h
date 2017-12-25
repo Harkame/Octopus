@@ -36,7 +36,7 @@
 #include "../services/system/system.h"
 #include "../services/transfer/transfer.h"
 
-#include "../transfer/file_transfer.h"
+#include "../common/transfer/transfer.h"
 
 #define DEFAULT_VALUE_PORT 6666
 
