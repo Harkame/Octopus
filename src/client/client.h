@@ -56,9 +56,11 @@ int g_socket;
 pthread_t g_read_thread;
 pthread_t g_write_thread;
 
-int  g_port = DEFAULT_PORT;
-char g_ip[] = {DEFAULT_IP};
-char g_directory[BUFSIZ] = {DEFAULT_DIRECTORY};
+int g_port = DEFAULT_PORT;
+char g_ip[] = {
+	DEFAULT_IP };
+char g_directory[BUFSIZ] = {
+	DEFAULT_DIRECTORY };
 
 char g_file_name[BUFSIZ];
 
@@ -74,11 +76,11 @@ pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 void initialize_windows();
 
 /*
-* /!\ Protected by g_mutex
-*
-* Used for resize windows
-*
-*/
+ * /!\ Protected by g_mutex
+ *
+ * Used for resize windows
+ *
+ */
 void re_initialize_windows();
 
 void close_windows();

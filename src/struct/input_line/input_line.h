@@ -11,12 +11,12 @@ extern struct LIST_STRING g_list_string;
 
 typedef struct input_line
 {
-    char* a_line;
+	char* a_line;
 
-    int a_length;
-    int a_capacity;
-    int a_cursor;
-    int a_last_rendered;
+	int a_length;
+	int a_capacity;
+	int a_cursor;
+	int a_last_rendered;
 } input_line;
 
 void init_screen();

@@ -7,9 +7,9 @@
 
 typedef struct OPTIONS
 {
-     int a_options_count;
+	int a_options_count;
 
-     char** a_options_values;
+	char** a_options_values;
 } OPTIONS;
 
 int create_options(OPTIONS* p_options_to_create);

@@ -6,16 +6,16 @@
 #include <stdio.h>
 
 #ifndef OK
-     #define OK       0
+#define OK       0
 #endif
 
 #define ERROR -1
 
 typedef struct LIST
 {
-     void* a_value;
+	void* a_value;
 
-     struct LIST* a_next;
+	struct LIST* a_next;
 } LIST;
 
 void list_initialize(LIST* p_list_to_initialize, void* p_first_value);

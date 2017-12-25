@@ -5,9 +5,9 @@
 
 typedef struct CONNECTION
 {
-     int a_socket;
+	int a_socket;
 
-     int a_state;
+	int a_state;
 
 } CONNECTION;
 
