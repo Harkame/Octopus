@@ -1,5 +1,6 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef _CLIENT_H
+#define _CLIENT_H
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

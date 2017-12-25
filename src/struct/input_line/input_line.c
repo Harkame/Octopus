@@ -87,64 +87,64 @@ int handle_input(struct input_line* p_buffer, char* target, int max_len, int p_k
 	switch (p_key)
 	{
 
-	case KEY_RESIZE:
-		re_initialize_windows();
+		case KEY_RESIZE:
+			re_initialize_windows();
 
-		print_textarea();
+			print_textarea();
 
-		refresh_windows();
-		break;
-
-	case ERR:
-		exit_program();
-		break;
-
-	case KEY_LEFT:
-		if (p_buffer->a_cursor > 0)
-			p_buffer->a_cursor--;
-		break;
-
-	case KEY_RIGHT:
-		if (p_buffer->a_cursor < p_buffer->a_length)
-			p_buffer->a_cursor++;
-		break;
-
-	case KEY_HOME:
-		p_buffer->a_cursor = 0;
-		break;
-
-	case KEY_END:
-		p_buffer->a_cursor = p_buffer->a_length;
-		break;
-
-	case '\t':
-		add_char(p_buffer, '\t');
-		break;
-
-	case KEY_BACKSPACE:
-	case 127:
-	case 8:
-		if (p_buffer->a_cursor <= 0)
+			refresh_windows();
 			break;
 
-		p_buffer->a_length--;
-		p_buffer->a_cursor--;
+		case ERR:
+			exit_program();
+			break;
 
-		return 0;
+		case KEY_LEFT:
+			if (p_buffer->a_cursor > 0)
+				p_buffer->a_cursor--;
+			break;
 
-	case KEY_DC:
-		if (p_buffer->a_cursor < p_buffer->a_length)
-		{
-			memmove(&p_buffer->a_line[p_buffer->a_cursor], &p_buffer->a_line[p_buffer->a_cursor + 1], p_buffer->a_length - p_buffer->a_cursor - 1);
+		case KEY_RIGHT:
+			if (p_buffer->a_cursor < p_buffer->a_length)
+				p_buffer->a_cursor++;
+			break;
+
+		case KEY_HOME:
+			p_buffer->a_cursor = 0;
+			break;
+
+		case KEY_END:
+			p_buffer->a_cursor = p_buffer->a_length;
+			break;
+
+		case '\t':
+			add_char(p_buffer, '\t');
+			break;
+
+		case KEY_BACKSPACE:
+		case 127:
+		case 8:
+			if (p_buffer->a_cursor <= 0)
+				break;
+
 			p_buffer->a_length--;
-		}
+			p_buffer->a_cursor--;
 
-		break;
+			return 0;
 
-	case KEY_ENTER:
-	case '\r':
-	case '\n':
-		return retrieve_content(p_buffer, target, max_len);
+		case KEY_DC:
+			if (p_buffer->a_cursor < p_buffer->a_length)
+			{
+				memmove(&p_buffer->a_line[p_buffer->a_cursor], &p_buffer->a_line[p_buffer->a_cursor + 1], p_buffer->a_length - p_buffer->a_cursor - 1);
+				p_buffer->a_length--;
+			}
+
+			break;
+
+		case KEY_ENTER:
+		case '\r':
+		case '\n':
+			return retrieve_content(p_buffer, target, max_len);
 	}
 	return 0;
 }

@@ -284,27 +284,27 @@ void initialize_options(struct OPTIONS* p_options)
 	{
 		switch (t_result_option)
 		{
-		case 0:
-			//if(strcasecmp("help", optarg_list)
-			//help();
-			break;
+			case 0:
+				//if(strcasecmp("help", optarg_list)
+				//help();
+				break;
 
-		case 'i':
-			break;
+			case 'i':
+				break;
 
-		case 'p':
-			g_port = atoi(optarg);
-			break;
+			case 'p':
+				g_port = atoi(optarg);
+				break;
 
-		case 'd':
-			break;
+			case 'd':
+				break;
 
-		case 'f':
-			break;
+			case 'f':
+				break;
 
-		default:
-			//help();
-			break;
+			default:
+				//help();
+				break;
 		}
 	}
 }
