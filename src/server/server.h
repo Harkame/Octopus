@@ -38,8 +38,6 @@
 #define PARAMETERS_HELP "help"
 #define PARAMETERS_PORT "port"
 
-#define NO_ERROR 0
-
 typedef struct SERVICE
 {
 	char* a_service_name;
