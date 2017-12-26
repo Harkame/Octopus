@@ -25,7 +25,7 @@
 #include <ctype.h>
 
 #include "../struct/list/list.h"
-#include "../transfer/file_transfer.h"
+#include "../common/transfer/transfer.h"
 #include "../struct/input_line/input_line.h"
 #include "../struct/options/options.h"
 
@@ -37,7 +37,6 @@
 #define ERROR_MESSAGE_CONNECT "connect"
 #define ERROR_MESSAGE_FOPEN      "Error : fopen\n"
 
-#define MESSAGE_REMAINING                "%d remaining\n"
 #define MESSAGE_FILE_DOWNLOADED "%s downloaded\n"
 
 #define PROMPT_MESSAGE "> "

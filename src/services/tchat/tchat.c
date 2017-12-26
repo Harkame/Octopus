@@ -4,44 +4,46 @@ void* tchat_handler(void* p_client_number)
 {
 	int t_client_number = (intptr_t) p_client_number;
 
-	char t_receive_buffer[BUFSIZ];
-
-	char t_buffer[BUFSIZ] = {
-		'\0' };
+	char t_buffer[BUFSIZ];
 
 	while(1)
 	{
-		ssize_t t_receved_bytes = recv(g_connections[t_client_number].a_socket, t_receive_buffer, BUFSIZ, 0);
+		int t_message_length;
+
+		switch(receive_complete(g_connections[t_client_number].a_socket, (void*) &t_message_length, sizeof(int)))
+		{
+			case -1:
+
+			break;
+
+			case 0:
+
+			break;
+		}
+
+		char t_message[t_message_length];
+
+		switch(receive_complete(g_connections[t_client_number].a_socket, (void*) t_message, t_message_length))
+		{
+			case -1:
+
+			break;
+
+			case 0:
+
+			break;
+		}
 
 		sprintf(t_buffer, "%d", t_client_number);
 		strcat(t_buffer, " : ");
 
-		if (t_receved_bytes <= 0)
-		{
-			if (t_receved_bytes == 0)
-				strcat(t_buffer, ERROR_RECV_CONNECTION_LOST);
-			else
-				strcat(t_buffer, ERROR_RECV_CONNECTION_OTHER);
+		strcat(t_buffer, t_message);
 
-			close_connection(t_client_number);
+		add_message(t_buffer);
 
-			add_message(t_buffer);
+		print_textarea();
 
-			print_textarea();
-
-			pthread_exit(NULL);
-		}
-		else
-		{
-			strcat(t_buffer, t_receive_buffer);
-
-			add_message(t_buffer);
-
-			print_textarea();
-
-			memset(t_buffer, 0, strlen(t_buffer));
-			memset(t_receive_buffer, 0, strlen(t_receive_buffer));
-		}
+		memset(t_buffer, 0, strlen(t_buffer));
 	}
 
 	pthread_exit(NULL);

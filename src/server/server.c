@@ -212,36 +212,39 @@ void foo()
 		if (g_connections[t_index].a_socket == ERR)
 			exit_program();
 
-		ssize_t t_readed_size = recv(g_connections[t_index].a_socket, t_receive_buffer, BUFSIZ, 0);
+		int t_service_id;
 
-		if (t_readed_size == 0)
+		switch(receive_complete(g_connections[t_index].a_socket, (void*) &t_service_id, sizeof(int)))
+		{
+			case -1:
+
+			break;
+
+			case 0:
+
+			break;
+		}
+
+		char t_buffer[BUFSIZ];
+		char t_buffer_int[BUFSIZ];
+
+		sprintf(t_buffer_int, "%d", t_index);
+
+		strcpy(t_buffer, "New connection (");
+		strcat(t_buffer, t_buffer_int);
+		strcat(t_buffer, ") ");
+		strcat(t_buffer, " -> ");
+		strcat(t_buffer, t_receive_buffer);
+
+		add_message(t_buffer);
+
+		print_textarea();
+
+		if (pthread_create(&g_threads[t_index],
+		NULL, g_services[t_service_id]->a_service_handler, (void*) (intptr_t) t_index) != OK)
 			exit_program();
-		else
-			if (t_readed_size == ERR)
-				exit_program();
-			else
-			{
-				char t_buffer[BUFSIZ];
-				char t_buffer_int[BUFSIZ];
 
-				sprintf(t_buffer_int, "%d", t_index);
-
-				strcpy(t_buffer, "New connection (");
-				strcat(t_buffer, t_buffer_int);
-				strcat(t_buffer, ") ");
-				strcat(t_buffer, " -> ");
-				strcat(t_buffer, t_receive_buffer);
-
-				add_message(t_buffer);
-
-				print_textarea();
-
-				if (pthread_create(&g_threads[t_index],
-				NULL, g_services[1]->a_service_handler, (void*) (intptr_t) t_index) != OK)
-					exit_program();
-
-				memset(t_receive_buffer, 0, BUFSIZ);
-			}
+		memset(t_receive_buffer, 0, BUFSIZ);
 
 		if (pthread_mutex_lock(&g_mutex) == ERR)
 			exit_program();

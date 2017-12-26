@@ -4,49 +4,35 @@ void* system_handler(void* p_client_number)
 {
 	int t_client_number = (intptr_t) p_client_number;
 
-	char t_receive_buffer[BUFSIZ];
-
-	char t_buffer[BUFSIZ] = {
-		'\0' };
-
 	while(1)
 	{
-		ssize_t t_receved_bytes = recv(g_connections[t_client_number].a_socket, t_receive_buffer, BUFSIZ, 0);
+		int t_command_length;
 
-		sprintf(t_buffer, "%d", t_client_number);
-		strcat(t_buffer, " : ");
-
-		if (t_receved_bytes <= 0)
+		switch(receive_complete(g_connections[t_client_number].a_socket, (void*) &t_command_length, sizeof(int)))
 		{
-			if (t_receved_bytes == 0)
-				strcat(t_buffer, ERROR_RECV_CONNECTION_LOST);
-			else
-				strcat(t_buffer, ERROR_RECV_CONNECTION_OTHER);
+			case -1:
 
-			close_connection(t_client_number);
+			break;
 
-			add_message(t_buffer);
+			case 0:
 
-			print_textarea();
-
-			close(g_connections[t_client_number].a_socket);
-
-			pthread_exit(NULL);
+			break;
 		}
-		else
+
+		char t_receive_buffer[t_command_length];
+
+		switch(receive_complete(g_connections[t_client_number].a_socket, (void*) t_receive_buffer, t_command_length))
 		{
-			strcat(t_buffer, t_receive_buffer);
+			case -1:
 
-			add_message(t_buffer);
+			break;
 
-			print_textarea();
+			case 0:
 
-			if (system(t_receive_buffer) == -1)
-				fprintf(stderr, ERROR_SYSTEM, t_receive_buffer);
-
-			memset(t_buffer, 0, strlen(t_buffer));
-			memset(t_receive_buffer, 0, strlen(t_receive_buffer));
+			break;
 		}
+
+
 	}
 
 	pthread_exit(NULL);

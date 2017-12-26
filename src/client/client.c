@@ -163,8 +163,10 @@ void foo()
 				exit_program();
 			}
 
+			/*
 			if (receive_file(g_socket, t_file) != 0)
 				exit_program();
+			*/
 
 			pthread_mutex_lock(&g_mutex);
 

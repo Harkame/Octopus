@@ -49,7 +49,7 @@ void* transfer_handler(void* p_client_number)
 				pthread_exit(NULL);
 			}
 
-			if (send_file(g_connections[t_client_number].a_socket, t_file) != 0)
+			if (send_file_traces(g_connections[t_client_number].a_socket, t_file) != 0)
 			{
 				close(g_connections[t_client_number].a_socket);
 				pthread_exit(NULL);

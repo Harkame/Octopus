@@ -24,7 +24,7 @@ int send_complete(int p_socket, void** p_buffer, int p_bytes_to_send)
 return t_total_sended_bytes;
 }
 
-int recv_complete(int p_socket, void** p_buffer, int p_bytes_to_receive)
+int receive_complete(int p_socket, void** p_buffer, int p_bytes_to_receive)
 {
   int t_received_bytes = recv(p_socket,  p_buffer, p_bytes_to_receive, MSG_WAITALL);
 
@@ -105,7 +105,7 @@ int receive_file_traces(int p_socket, FILE* p_file_to_receive)
 {
   int t_file_size;
 
-  switch(recv_complete(p_socket, (void*) &t_file_size, sizeof(int)))
+  switch(receive_complete(p_socket, (void*) &t_file_size, sizeof(int)))
   {
     case -1:
       return -1;
@@ -126,7 +126,7 @@ int receive_file_traces(int p_socket, FILE* p_file_to_receive)
 
     int t_received_size;
 
-    switch(recv_complete(p_socket, (void*) &t_received_size, sizeof(int)))
+    switch(receive_complete(p_socket, (void*) &t_received_size, sizeof(int)))
     {
       case -1:
         return -1;
@@ -135,7 +135,7 @@ int receive_file_traces(int p_socket, FILE* p_file_to_receive)
         return 0;
     }
 
-    switch(recv_complete(p_socket, (void*) t_buffer, t_received_size))
+    switch(receive_complete(p_socket, (void*) t_buffer, t_received_size))
     {
       case -1:
         return -1;

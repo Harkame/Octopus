@@ -29,7 +29,7 @@ int send_complete(int p_socket, void** p_buffer, int p_bytes_to_send);
 /*
 * Recv with flag : MSG_WAITALL
 */
-int recv_complete(int p_socket, void** p_buffer, int p_bytes_to_receive);
+int receive_complete(int p_socket, void** p_buffer, int p_bytes_to_receive);
 
 /*
 * Send p_file_to_send with p_socket, print traces

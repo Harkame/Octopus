@@ -10,7 +10,17 @@
 #include <sys/resource.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <unistd.h>
+#include <errno.h>
+#include <getopt.h>
 
+#include "../services/tchat/tchat.h"
+#include "../services/system/system.h"
+#include "../services/transfer/transfer.h"
+
+#include "../struct/input_line/input_line.h"
+#include "../common/transfer/transfer.h"
+#include "../struct/options/options.h"
 #include "../struct/connection/connection.h"
 #include "../struct/list/list.h"
 

@@ -2,8 +2,8 @@ MKDIR                              = mkdir -p
 GCC                                  = gcc -ansi -Wpedantic -pedantic -pedantic-errors -W -Wall -Wextra -Werror -Wfatal-errors  -std=gnu99 -O3
 OPTIONS                         = -pthread -D_GNU_SOURCE -lncurses
 LIBRARY_OPTIONS        = -c
-LIBRARY_STRUCTURES = ./bin/struct/list/list.o ./bin/struct/input_line/input_line.o ./bin/struct/connection/connection.o ./bin/struct/options/options.o
-LIBRARY_SERVICES       = ./bin/services/tchat/tchat.o ./bin/services/system/system.o ./bin/services/common/transfer/common/transfer/transfer.o
+LIBRARY_STRUCTURES = ./bin/struct/list/list.o ./bin/struct/input_line/input_line.o ./bin/struct/connection/connection.o ./bin/struct/options/options.o ./bin/common/transfer/transfer.o
+LIBRARY_SERVICES       = ./bin/services/tchat/tchat.o ./bin/services/system/system.o ./bin/services/transfer/transfer.o
 
 all: directory file clean
 
@@ -27,17 +27,17 @@ file: clean library services server client test clean
 services:
 	${GCC} ./src/services/tchat/tchat.c ${OPTIONS} ${LIBRARY_OPTIONS} -o ./bin/services/tchat/tchat.o;
 	${GCC} ./src/services/system/system.c ${OPTIONS} ${LIBRARY_OPTIONS} -o ./bin/services/system/system.o;
-	${GCC} ./src/services/transfer/transfer.c ${OPTIONS} ${LIBRARY_OPTIONS} ./bin/common/transfer/transfer.o -o ./bin/services/transfer/transfer.o;
+	${GCC} ./src/services/transfer/transfer.c ${OPTIONS} ${LIBRARY_OPTIONS} -o ./bin/services/transfer/transfer.o;
 
 server:
-	${GCC} ./src/server/server.c ${OPTIONS} ${LIBRARY_STRUCTURES} ./bin/common/transfer/common/transfer/transfer.o ${LIBRARY_SERVICES} -o ./bin/server/server.out ;
+	${GCC} ./src/server/server.c ${OPTIONS} ${LIBRARY_STRUCTURES} ${LIBRARY_SERVICES} -o ./bin/server/server.out ;
 
 client:
-	${GCC} ./src/client/client.c ${OPTIONS} ./bin/common/transfer/common/transfer/transfer.o ${LIBRARY_STRUCTURES} -o ./bin/client/client.out;
+	${GCC} ./src/client/client.c ${OPTIONS} ${LIBRARY_STRUCTURES} -o ./bin/client/client.out;
 
-library: file_common/transfer struct
+library: transfer struct
 
-file_common/transfer:
+transfer:
 	${GCC} ./src/common/transfer/transfer.c ${LIBRARY_OPTIONS} -o ./bin/common/transfer/transfer.o -Wno-unused-result;
 
 struct:
