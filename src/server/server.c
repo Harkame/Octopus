@@ -214,15 +214,15 @@ void foo()
 
 		int t_service_id;
 
-		switch(receive_complete(g_connections[t_index].a_socket, (void*) &t_service_id, sizeof(int)))
+		switch (receive_complete(g_connections[t_index].a_socket, (void*) &t_service_id, sizeof(int)))
 		{
 			case -1:
 
-			break;
+				break;
 
 			case 0:
 
-			break;
+				break;
 		}
 
 		char t_buffer[BUFSIZ];

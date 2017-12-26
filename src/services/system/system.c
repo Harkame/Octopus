@@ -8,30 +8,29 @@ void* system_handler(void* p_client_number)
 	{
 		int t_command_length;
 
-		switch(receive_complete(g_connections[t_client_number].a_socket, (void*) &t_command_length, sizeof(int)))
+		switch (receive_complete(g_connections[t_client_number].a_socket, (void*) &t_command_length, sizeof(int)))
 		{
 			case -1:
 
-			break;
+				break;
 
 			case 0:
 
-			break;
+				break;
 		}
 
 		char t_receive_buffer[t_command_length];
 
-		switch(receive_complete(g_connections[t_client_number].a_socket, (void*) t_receive_buffer, t_command_length))
+		switch (receive_complete(g_connections[t_client_number].a_socket, (void*) t_receive_buffer, t_command_length))
 		{
 			case -1:
 
-			break;
+				break;
 
 			case 0:
 
-			break;
+				break;
 		}
-
 
 	}
 
