@@ -10,7 +10,7 @@ WINDOW* g_window_form;
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_t g_command_thread;
-pthread_t g_threads[10];
+pthread_t* g_threads;
 
 LIST g_list;
 
@@ -162,6 +162,11 @@ struct SERVICE* create_service()
 	r_service->a_service_name = malloc(255 * sizeof(char));
 
 	return r_service;
+}
+
+void initialize()
+{
+
 }
 
 void foo()
@@ -500,5 +505,5 @@ int main(int p_count_arguments, char** p_arguments_values)
 
 	foo();
 
-	return 0;
+	return EXIT_SUCCESS;
 }

@@ -56,7 +56,7 @@ extern pthread_mutex_t g_mutex;
 
 extern pthread_t g_command_thread;
 
-extern pthread_t g_threads[];
+extern pthread_t* g_threads;
 
 extern LIST g_list;
 
