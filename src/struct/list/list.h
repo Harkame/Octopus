@@ -8,9 +8,9 @@
 
 typedef struct LIST
 {
-     void* a_value;
+	void* a_value;
 
-     struct LIST* a_next;
+	struct LIST* a_next;
 } LIST;
 
 int list_add_first_element(LIST* p_list, void* p_value_to_add);
