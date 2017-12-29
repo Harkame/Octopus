@@ -1,5 +1,5 @@
 MKDIR                              = mkdir -p
-GCC                                  = gcc -ansi -Wpedantic -pedantic -pedantic-errors -W -Wall -Wextra -Werror -Wfatal-errors  -std=gnu99 -O3
+GCC                                  = gcc --std=gnu99 -O3
 OPTIONS                         = -pthread -D_GNU_SOURCE -lncurses
 LIBRARY_OPTIONS        = -c
 LIBRARY_STRUCTURES = ./bin/struct/list/list.o ./bin/struct/input_line/input_line.o ./bin/struct/connection/connection.o ./bin/struct/options/options.o ./bin/common/transfer/transfer.o

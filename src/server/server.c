@@ -2,7 +2,7 @@
 
 int g_port = DEFAULT_VALUE_PORT;
 
-CONNECTION g_connections[10];
+CONNECTION* g_connections;
 
 WINDOW* g_window_textarea;
 WINDOW* g_window_form;
@@ -10,7 +10,6 @@ WINDOW* g_window_form;
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_t g_command_thread;
-pthread_t* g_threads;
 
 LIST g_list;
 
@@ -18,9 +17,11 @@ LIST g_list_int;
 
 LIST g_list_options;
 
-SERVICE* g_services[10];
+HANDLER* g_services;
 
-int g_count_client = 0;
+sem_t g_semaphore;
+
+int g_number_services = DEFAULT_NUMBER_SERVICES;
 
 void print_graphical_EXIT_FAILURE()
 {
@@ -52,13 +53,11 @@ void* command_handler()
 				exit_program();
 			}
 
-			add_message(t_readed_command);
+			print_message(t_readed_command);
+			
+			//parse_command(&t_options, t_readed_command);
 
-			parse_command(&t_options, t_readed_command);
-
-			initialize_options(&t_options);
-
-			print_textarea();
+			//initialize_options(&t_options);
 		}
 
 		render_line(&linep_bufferfer);
@@ -155,22 +154,30 @@ void initialize_socket(int p_server_socket_to_initialize)
 		exit_program();
 }
 
-struct SERVICE* create_service()
+void print_message(char* p_message_to_print)
 {
-	struct SERVICE* r_service = malloc(sizeof(struct SERVICE));
+	add_message(p_message_to_print);
 
-	r_service->a_service_name = malloc(255 * sizeof(char));
-
-	return r_service;
+	print_textarea();
 }
 
 void initialize()
 {
+	if(sem_init(&g_semaphore, 0, 0) == -1)
+	{
+		exit_program();
+	}
 
-}
+	g_services = malloc(sizeof(HANDLER) * g_number_services);
 
-void foo()
-{
+	if(g_services == NULL)
+	{
+		//TODO
+		exit_program();
+	}
+
+	g_connections = malloc(sizeof(CONNECTION) * g_number_services);
+
 	initialize_windows();
 
 	refresh_windows();
@@ -178,7 +185,10 @@ void foo()
 	initialize_services();
 
 	initialize_connections();
+}
 
+void foo()
+{
 	if (pthread_create(&g_command_thread, NULL, command_handler, NULL) == ERR)
 		exit_program();
 
@@ -193,21 +203,6 @@ void foo()
 
 	while(1)
 	{
-		/*
-		 pthread_mutex_lock(&g_mutex);
-
-		 int t_index = list_size_int(&g_list);
-
-		 if(t_index == 0)
-		 t_index = g_count_client;
-		 else
-		 {
-		 t_index = get_element_list_int(&g_list, 0);
-		 remove_element_list_int(&g_list, 0);
-		 }
-
-		 pthread_mutex_unlock(&g_mutex);
-		 */
 		int t_index = 0;
 
 		char t_receive_buffer[BUFSIZ];
@@ -245,8 +240,8 @@ void foo()
 
 		print_textarea();
 
-		if (pthread_create(&g_threads[t_index],
-		NULL, g_services[t_service_id]->a_service_handler, (void*) (intptr_t) t_index) != OK)
+		if (pthread_create(&g_connections[t_index].a_pthread,
+		NULL, g_services[t_service_id].a_service_handler, (void*) (intptr_t) t_index) != OK)
 			exit_program();
 
 		memset(t_receive_buffer, 0, BUFSIZ);
@@ -254,7 +249,10 @@ void foo()
 		if (pthread_mutex_lock(&g_mutex) == ERR)
 			exit_program();
 
-		g_count_client++;
+		if(sem_post(&g_semaphore) == -1)
+		{
+			perror(ERROR_MESSAGE_SEM_POST);
+		}
 
 		if (pthread_mutex_unlock(&g_mutex) == ERR)
 			exit_program();
@@ -375,7 +373,14 @@ void close_sockets()
 	if (pthread_mutex_lock(&g_mutex) == ERR)
 		exit_program();
 
-	for(int t_index = 0; t_index < g_count_client; t_index++)
+	int t_sem_value;
+
+	if(sem_getvalue(&g_semaphore, &t_sem_value) == -1)
+	{
+		perror(ERROR_MESSAGE_SEM_GETVALUE);
+	}
+
+	for(int t_index = 0; t_index < t_sem_value; t_index++)
 		if (close(g_connections[t_index].a_socket) == ERR)
 			print_graphical_EXIT_FAILURE();
 
@@ -396,12 +401,9 @@ void exit_program()
 
 void initialize_services()
 {
-	for(int t_index = 0; t_index < 10; t_index++)
-		g_services[t_index] = create_service();
-
-	g_services[0]->a_service_handler = tchat_handler;
-	g_services[1]->a_service_handler = system_handler;
-	g_services[2]->a_service_handler = transfer_handler;
+	g_services[0].a_service_handler = tchat_handler;
+	g_services[1].a_service_handler = system_handler;
+	g_services[2].a_service_handler = transfer_handler;
 }
 
 void initialize_connections()
@@ -428,16 +430,18 @@ void parse_command(struct OPTIONS* p_options_readed, char* p_command)
 	p_options_readed->a_options_count = t_count - 1;
 }
 
-void initialize_options(struct OPTIONS* p_options)
+void initialize_options(OPTIONS* p_options)
 {
 	int t_result_option = 0;
 	int t_option_index = 0;
-	struct option t_long_options[] = {
+	struct option t_long_options[] =
+	{
 		{
-			"help", 0, NULL, 0 }, {
-			NULL, 0, NULL, 0 } };
+			"help", no_argument, NULL, 'h'}, {
+			NULL, 0, NULL, 0 }
+	};
 
-	while((t_result_option = getopt_long(p_options->a_options_count, p_options->a_options_values, "hcp", t_long_options, &t_option_index)) != -1)
+	while((t_result_option = getopt_long(p_options->a_options_count, p_options->a_options_values, "h", t_long_options, &t_option_index)) != -1)
 	{
 		switch (t_result_option)
 		{
@@ -457,11 +461,6 @@ void initialize_options(struct OPTIONS* p_options)
 				break;
 
 			case 'f':
-				break;
-
-			case 'h':
-			default:
-				help();
 				break;
 		}
 	}
@@ -485,7 +484,10 @@ int close_connection(int p_number_client)
 	if (pthread_mutex_lock(&g_mutex) == EXIT_FAILURE)
 		return -1;
 
-	g_count_client--;
+	if(sem_wait(&g_semaphore) == -1)
+	{
+		perror(ERROR_MESSAGE_SEM_WAIT);
+	}
 
 	close(g_connections[p_number_client].a_socket);
 
@@ -497,9 +499,21 @@ int close_connection(int p_number_client)
 
 int main(int p_count_arguments, char** p_arguments_values)
 {
-	struct OPTIONS t_options;
+	struct sigaction t_sigaction;
+	t_sigaction.sa_handler = &exit_program;
+	t_sigaction.sa_flags = 0;
+
+	if(sigaction(SIGINT, &t_sigaction, NULL) == -1)
+	{
+		perror(ERROR_MESSAGE_SIGACTION);
+		exit_program();
+	}
+
+	OPTIONS t_options;
 	t_options.a_options_count = p_count_arguments;
 	t_options.a_options_values = p_arguments_values;
+
+	initialize();
 
 	initialize_options(&t_options);
 

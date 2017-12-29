@@ -98,28 +98,6 @@ int test_list_add_last_element()
      return EXIT_SUCCESS;
 }
 
-int test_list_remove_element()
-{
-     LIST t_list;
-
-     list_initialize(&t_list, (void*) (intptr_t) g_array_values_int[0]);
-
-     for(int t_index = 1; t_index < COUNT; t_index++)
-          if(list_add_first_element(&t_list, (void*) (intptr_t) g_array_values_int[t_index]) == EXIT_FAILURE)
-               return EXIT_FAILURE;
-
-     for(int t_index = 0; t_index < COUNT - 1; t_index++)
-          if(list_remove_element(&t_list, 0) == EXIT_FAILURE)
-               return EXIT_FAILURE;
-
-     if(list_size(&t_list) != 0)
-          return EXIT_FAILURE;
-
-     list_delete(&t_list);
-
-     return EXIT_SUCCESS;
-}
-
 int test_list_get_element()
 {
      return EXIT_SUCCESS;
