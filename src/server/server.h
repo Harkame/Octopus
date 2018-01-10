@@ -26,7 +26,7 @@
 #include "../struct/connection/connection.h"
 #include "../struct/list/list.h"
 
-#define DEFAULT_VALUE_PORT 6666
+#define DEFAULT_VALUE_PORT 10000
 #define DEFAULT_NUMBER_SERVICES 10
 
 #define PROMPT_MESSAGE "> "
@@ -100,11 +100,7 @@ extern pthread_mutex_t g_mutex;
 
 extern pthread_t g_command_thread;
 
-extern LIST g_list;
-
-extern LIST g_list_int;
-
-extern LIST g_list_options;
+extern LIST* g_list;
 
 extern HANDLER* g_services;
 
@@ -169,8 +165,6 @@ void help();
 void exit_program();
 
 void* command_handler();
-
-void print_grapical_error();
 
 /*
  * /!\ Protected by g_mutex

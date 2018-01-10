@@ -29,7 +29,7 @@
 #include "../struct/input_line/input_line.h"
 #include "../struct/options/options.h"
 
-#define DEFAULT_PORT            6666
+#define DEFAULT_PORT            10000
 #define DEFAULT_IP                  "127.0.0.1"
 #define DEFAULT_DIRECTORY ".test"
 
@@ -69,7 +69,7 @@ FILE* g_downloaded_file;
 WINDOW* g_window_textarea;
 WINDOW* g_window_form;
 
-LIST g_list;
+extern LIST* g_list;
 
 pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 

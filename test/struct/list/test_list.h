@@ -4,8 +4,8 @@
 
 #include "../../../src/struct/list/list.h"
 
-#define RANDOM_VALUES_INT {42, 3, 52, 48, 12, 1, 0, -89, -4, 12}
-#define COUNT 10
+#define RANDOM_ELEMENTS_INT {42, 3, 52, 48, 12, 1, 0, -89, -4, 12}
+#define NUMBER_ELEMENTS 10
 
 extern int g_array_values_int[];
 

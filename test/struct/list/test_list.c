@@ -1,174 +1,143 @@
 #include "./test_list.h"
 
-int g_array_values_int[] = RANDOM_VALUES_INT;
+int g_array_random_int[] = RANDOM_ELEMENTS_INT;
 
-int test_list_initialize()
+int test_list_push_first()
 {
-	LIST t_list;
+	LIST* t_list = NULL;
 
-	list_initialize(&t_list, (void*) (intptr_t) g_array_values_int[0]);
+	for(int t_index = 0; t_index < NUMBER_ELEMENTS; t_index++)
+	{
+		if(list_push_first(&t_list, (void*) (intptr_t) g_array_random_int[t_index]) == -1)
+			return -1;
 
-	if (t_list.a_value != (void*) (intptr_t) g_array_values_int[0])
-		return EXIT_FAILURE;
+		if(t_list->a_value != (void*) (intptr_t) g_array_random_int[t_index])
+			return -1;
 
-	if (t_list.a_next != NULL)
-		return EXIT_FAILURE;
+		if(list_size(t_list) != t_index + 1)
+			return -1;
+	}
+
+	if(list_size(t_list) != NUMBER_ELEMENTS)
+		return -1;
 
 	list_delete(&t_list);
 
-	return EXIT_SUCCESS;
+	if(list_size(t_list) != 0)
+		return -1;
+
+	return 0;
 }
 
-int test_list_delete()
+int test_list_push_last()
 {
-	LIST t_list;
+	LIST* t_list = NULL;
 
-	list_initialize(&t_list, (void*) (intptr_t) g_array_values_int[0]);
+	for(int t_index = 0; t_index < NUMBER_ELEMENTS; t_index++)
+	{
+		if(list_push_last(&t_list, (void*) (intptr_t) g_array_random_int[t_index]) == -1)
+			return -1;
+
+		if(list_get(t_list, t_index) != (void*) (intptr_t) g_array_random_int[t_index])
+			return -1;
+
+		if(list_size(t_list) != t_index + 1)
+			return -1;
+	}
+
+	if(list_size(t_list) != NUMBER_ELEMENTS)
+		return -1;
 
 	list_delete(&t_list);
 
-	/*
-	 TODO
-	 */
+	if(list_size(t_list) != 0)
+		return -1;
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
-int test_list_add_element()
+int test_list_pop_first()
 {
-	LIST t_list;
+	LIST* t_list = NULL;
 
-	list_initialize(&t_list, (void*) (intptr_t) g_array_values_int[0]);
+	for(int t_index = 0; t_index < NUMBER_ELEMENTS; t_index++)
+	{
+		if(list_push_first(&t_list, (void*) (intptr_t) g_array_random_int[t_index]) == -1)
+			return -1;
 
-	for(int t_index = 1; t_index < COUNT; t_index++)
-		if (list_add_element(&t_list, (void*) (intptr_t) g_array_values_int[t_index], t_index - 1) == EXIT_FAILURE)
-			return EXIT_FAILURE;
+		if(t_list->a_value != (void*) (intptr_t) g_array_random_int[t_index])
+			return -1;
+	}
 
-	if (list_size(&t_list) == COUNT)
-		return EXIT_FAILURE;
+	for(int t_index = NUMBER_ELEMENTS - 1; t_index > -1; t_index--)
+	{
+		if(list_pop_first(&t_list) != (void*) (intptr_t) g_array_random_int[t_index])
+			return -1;
 
-	for(int t_index = 0; t_index < COUNT; t_index++)
-		if (list_contains_element(&t_list, (void*) (intptr_t) g_array_values_int[t_index]) == EXIT_FAILURE)
-			return EXIT_FAILURE;
+		if(list_size(t_list) != t_index)
+			return -1;
+	}
 
-	list_delete(&t_list);
+	if(list_size(t_list) != 0)
+		return -1;
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
-int test_list_add_first_element()
+int test_list_pop_last()
 {
-	LIST t_list;
+	LIST* t_list = NULL;
 
-	list_initialize(&t_list, (void*) (intptr_t) g_array_values_int[0]);
+	for(int t_index = 0; t_index < NUMBER_ELEMENTS; t_index++)
+	{
+		if(list_push_first(&t_list, (void*) (intptr_t) g_array_random_int[t_index]) == -1)
+			return -1;
 
-	for(int t_index = 1; t_index < COUNT; t_index++)
-		if (list_add_first_element(&t_list, (void*) (intptr_t) g_array_values_int[t_index]) == EXIT_FAILURE)
-			return EXIT_FAILURE;
+		if(t_list->a_value != (void*) (intptr_t) g_array_random_int[t_index])
+			return -1;
+	}
 
-	if (list_size(&t_list) == COUNT)
-		return EXIT_FAILURE;
+	for(int t_index = NUMBER_ELEMENTS - 1; t_index > -1; t_index--)
+	{
+		list_pop_last(&t_list);
 
-	for(int t_index = 0; t_index < COUNT; t_index++)
-		if (list_contains_element(&t_list, (void*) (intptr_t) g_array_values_int[t_index]) == EXIT_FAILURE)
-			return EXIT_FAILURE;
+			/*
+		if(list_size(t_list) != t_index)
+			return -1;
+			*/
 
-	list_delete(&t_list);
+	}
 
-	return EXIT_SUCCESS;
-}
+	if(list_size(t_list) != 0)
+		return -1;
 
-int test_list_add_last_element()
-{
-	LIST t_list;
-
-	list_initialize(&t_list, (void*) (intptr_t) g_array_values_int[0]);
-
-	for(int t_index = 1; t_index < COUNT; t_index++)
-		if (list_contains_element(&t_list, (void*) (intptr_t) g_array_values_int[t_index]) == EXIT_FAILURE)
-			return EXIT_FAILURE;
-
-	fprintf(stdout, "SIZE : %d\n", list_size(&t_list));
-
-	if (list_size(&t_list) == COUNT)
-		return EXIT_FAILURE;
-
-	list_delete(&t_list);
-
-	return EXIT_SUCCESS;
-}
-
-int test_list_get_element()
-{
-	return EXIT_SUCCESS;
-}
-
-int test_list_contains_element()
-{
-	return EXIT_SUCCESS;
-}
-
-int test_list_size()
-{
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int main()
 {
-	if (test_list_initialize() == EXIT_FAILURE)
+	if (test_list_push_first() == -1)
 	{
-		fprintf(stderr, "ERROR : test_list_initialize\n");
+		fprintf(stderr, "ERROR : test_list_push_first\n");
 		return EXIT_FAILURE;
 	}
 
-	if (test_list_delete() == EXIT_FAILURE)
+	if (test_list_push_last() == -1)
 	{
-		fprintf(stderr, "ERROR : test_list_delete\n");
+		fprintf(stderr, "ERROR : test_list_push_first\n");
 		return EXIT_FAILURE;
 	}
 
-	/*
-	 if(test_list_add_element() == EXIT_FAILURE)
-	 {
-	 fprintf(stderr, "ERROR : test_list_add_element\n");
-	 return EXIT_FAILURE;
-	 }
-	 */
-	/*
-	 if(test_list_add_first_element() == EXIT_FAILURE)
-	 {
-	 fprintf(stderr, "ERROR : test_list_add_first_element\n");
-	 return EXIT_FAILURE;
-	 }
-	 */
-	/*
-	 if(test_list_add_last_element() == EXIT_FAILURE)
-	 {
-	 fprintf(stderr, "ERROR : test_list_add_last_element\n");
-	 return EXIT_FAILURE;
-	 }
-	 */
-	if (test_list_remove_element() == EXIT_FAILURE)
+
+	if (test_list_pop_first() == -1)
 	{
-		fprintf(stderr, "ERROR : test_list_remove_element\n");
+		fprintf(stderr, "ERROR : test_list_pop_first\n");
 		return EXIT_FAILURE;
 	}
 
-	if (test_list_get_element() == EXIT_FAILURE)
+	if (test_list_pop_last() == -1)
 	{
-		fprintf(stderr, "ERROR : test_list_get_element\n");
-		return EXIT_FAILURE;
-	}
-
-	if (test_list_contains_element() == EXIT_FAILURE)
-	{
-		fprintf(stderr, "ERROR : test_list_contains_element\n");
-		return EXIT_FAILURE;
-	}
-
-	if (test_list_size() == EXIT_FAILURE)
-	{
-		fprintf(stderr, "ERROR : test_list_size\n");
+		fprintf(stderr, "ERROR : test_list_pop_first\n");
 		return EXIT_FAILURE;
 	}
 

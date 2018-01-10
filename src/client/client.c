@@ -1,41 +1,65 @@
 #include "client.h"
 
+LIST* g_list = NULL;
+
+void add_message(char* p_message)
+{
+	if (pthread_mutex_lock(&g_mutex) == -1)
+		exit_program();
+
+	char* t_message = malloc(sizeof(char) * strlen(p_message));
+
+	strcpy(t_message, p_message);
+
+	list_push_first(&g_list, t_message);
+
+	if (pthread_mutex_unlock(&g_mutex) == -1)
+		exit_program();
+
+	adjust_list();
+}
+
+void print_message(char* p_message_to_print)
+{
+	add_message(p_message_to_print);
+
+	print_textarea();
+}
+
 void* read_handler()
 {
 	char t_received_buffer[BUFSIZ];
+	char t_message[BUFSIZ];
 
 	while(1)
 	{
-		ssize_t t_readed_size = recv(g_socket, t_received_buffer,
-		BUFSIZ, 0);
+		memset(t_message, 0, BUFSIZ);
 
-		if (t_readed_size == 0)
+		int t_message_length;
+
+		switch(receive_complete(g_socket, (void*) &t_message_length, sizeof(int)))
 		{
-			fprintf(stdout, "Connection lost\n");
+			case -1:
+				pthread_exit(NULL);
+			break;
 
-			exit_program();
+			case 0:
+				pthread_exit(NULL);
+			break;
 		}
-		else
-			if (t_readed_size == -1)
-			{
-				fprintf(stdout, "Connection lost\n");
 
-				exit_program();
-			}
-			else
-			{
-				pthread_mutex_lock(&g_mutex);
+		switch(receive_complete(g_socket, (void*) t_message, t_message_length))
+		{
+			case -1:
+				pthread_exit(NULL);
+			break;
 
-				list_add_last_element(&g_list, t_received_buffer);
+			case 0:
+				pthread_exit(NULL);
+			break;
+		}
 
-				pthread_mutex_unlock(&g_mutex);
-
-				adjust_list();
-
-				print_textarea();
-
-				refresh_windows();
-			}
+		print_message(t_message);
 	}
 }
 
@@ -43,30 +67,27 @@ void* write_handler()
 {
 	struct input_line linep_bufferfer;
 	make_input_line(&linep_bufferfer);
+	char t_readed_line[BUFSIZ];
 
 	while(1)
 	{
-		char t_readed_line[BUFSIZ];
-
 		int t_readed_length = get_line_non_blocking(&linep_bufferfer, t_readed_line,
 		BUFSIZ);
 
-		if (t_readed_length > 0)
+		if (t_readed_length > 1)
 		{
 			if (strcmp(t_readed_line, "exit") == 0)
 				exit_program();
 
-			pthread_mutex_lock(&g_mutex);
+			int t_size = strlen(t_readed_line);
 
-			list_add_last_element(&g_list, t_readed_line);
+			if(send_complete(g_socket, (void*) &t_size, sizeof(int)) == -1)
+				exit_program();
 
-			pthread_mutex_unlock(&g_mutex);
+			if(send_complete(g_socket, (void*) t_readed_line, t_size) == -1)
+				exit_program();
 
-			adjust_list();
-
-			print_textarea();
-
-			send(g_socket, t_readed_line, strlen(t_readed_line), 0);
+			print_message(t_readed_line);
 
 			refresh_windows();
 		}
@@ -130,78 +151,21 @@ void foo()
 	struct input_line linep_bufferfer;
 	make_input_line(&linep_bufferfer);
 
-	send(g_socket, "transfer", BUFSIZ, 0);
+	int t_code = 0;
 
-	while(1)
+	if(send_complete(g_socket, (void*) &t_code, sizeof(int)) == -1)
 	{
-		char t_readed_line[BUFSIZ];
-
-		int t_readed_length = get_line_non_blocking(&linep_bufferfer, t_readed_line,
-		BUFSIZ);
-
-		if (t_readed_length > 0)
-		{
-			if (strcmp(t_readed_line, "exit") == 0)
-				exit_program();
-
-			pthread_mutex_lock(&g_mutex);
-
-			list_add_last_element(&g_list, t_readed_line);
-
-			pthread_mutex_unlock(&g_mutex);
-
-			adjust_list();
-
-			print_textarea();
-
-			send(g_socket, t_readed_line, strlen(t_readed_line), 0);
-
-			FILE* t_file = fopen("/auto_home/ldaviaud/workspace/titi.txt", "w+");
-
-			if (t_file == NULL)
-			{
-				exit_program();
-			}
-
-			/*
-			 if (receive_file(g_socket, t_file) != 0)
-			 exit_program();
-			 */
-
-			pthread_mutex_lock(&g_mutex);
-
-			list_add_last_element(&g_list, "File received");
-
-			pthread_mutex_unlock(&g_mutex);
-
-			adjust_list();
-
-			print_textarea();
-
-			fclose(t_file);
-
-			refresh_windows();
-		}
-
-		render_line(&linep_bufferfer);
-
-		pthread_mutex_lock(&g_mutex);
-
-		move(LINES - 2, 1);
-
-		pthread_mutex_unlock(&g_mutex);
+		exit_program();
 	}
 
-	/*
-	 if(pthread_create(&g_write_thread, NULL, (void*) write_handler, NULL) == -1)
-	 exit_program();
+	if(pthread_create(&g_write_thread, NULL, (void*) write_handler, NULL) == -1)
+		exit_program();
 
-	 if(pthread_create(&g_read_thread, NULL, (void*) read_handler, NULL) == -1)
-	 exit_program();
+	if(pthread_create(&g_read_thread, NULL, (void*) read_handler, NULL) == -1)
+		exit_program();
 
-	 if(pthread_join(g_read_thread, NULL) == -1)
-	 exit_program();
-	 */
+	if(pthread_join(g_read_thread, NULL) == -1)
+		exit_program();
 }
 
 void help()
@@ -212,24 +176,29 @@ void help()
 
 	exit_program();
 }
-
 void print_textarea()
 {
-	pthread_mutex_lock(&g_mutex);
+	if (pthread_mutex_lock(&g_mutex) == -1)
+		exit_program();
 
-	char* t_buffer[list_size(&g_list)];
+	char* t_buffer[list_size(g_list)];
 
-	for(int t_index = 0; t_index < list_size(&g_list); t_index++)
+	for(int t_index = 0; t_index < list_size(g_list); t_index++)
 		t_buffer[t_index] = alloca(50 * sizeof(char));
 
-	list_to_array(&g_list, t_buffer, 0, list_size(&g_list));
+	list_to_array(g_list, (void*) t_buffer, 0, list_size(g_list));
 
-	wclear(g_window_textarea);
+	if (wclear(g_window_textarea) == -1)
+		exit_program();
 
-	for(int t_index = 0; t_index < list_size(&g_list); t_index++)
-		mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]);
+	for(int t_index = 0; t_index < list_size(g_list); t_index++)
+		if (mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]) == -1)
+			exit_program();
 
-	pthread_mutex_unlock(&g_mutex);
+	if (pthread_mutex_unlock(&g_mutex) == -1)
+		exit_program();
+
+	refresh_windows();
 }
 
 void close_windows()
@@ -247,8 +216,8 @@ void adjust_list()
 {
 	pthread_mutex_lock(&g_mutex);
 
-	if (list_size(&g_list) > (LINES / 3) - 3)
-		list_remove_element(&g_list, 0);
+	if (list_size(g_list) > (LINES / 3) - 3)
+		list_pop_last(&g_list);
 
 	pthread_mutex_unlock(&g_mutex);
 }

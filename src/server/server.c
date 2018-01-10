@@ -11,22 +11,13 @@ pthread_mutex_t g_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_t g_command_thread;
 
-LIST g_list;
-
-LIST g_list_int;
-
-LIST g_list_options;
+LIST* g_list = NULL;
 
 HANDLER* g_services;
 
 sem_t g_semaphore;
 
 int g_number_services = DEFAULT_NUMBER_SERVICES;
-
-void print_graphical_EXIT_FAILURE()
-{
-	print_textarea();
-}
 
 void* command_handler()
 {
@@ -54,7 +45,7 @@ void* command_handler()
 			}
 
 			print_message(t_readed_command);
-			
+
 			//parse_command(&t_options, t_readed_command);
 
 			//initialize_options(&t_options);
@@ -62,13 +53,13 @@ void* command_handler()
 
 		render_line(&linep_bufferfer);
 
-		if (pthread_mutex_lock(&g_mutex) == ERR)
+		if (pthread_mutex_lock(&g_mutex) == -1)
 			exit_program();
 
-		if (move(LINES - 2, 1) == ERR)
+		if (move(LINES - 2, 1) == -1)
 			exit_program();
 
-		if (pthread_mutex_unlock(&g_mutex) == ERR)
+		if (pthread_mutex_unlock(&g_mutex) == -1)
 			exit_program();
 	}
 
@@ -77,51 +68,51 @@ void* command_handler()
 
 void refresh_windows()
 {
-	if (pthread_mutex_lock(&g_mutex) == ERR)
+	if (pthread_mutex_lock(&g_mutex) == -1)
 		exit_program();
 
-	if (box(g_window_textarea, ACS_VLINE, ACS_HLINE) == ERR)
+	if (box(g_window_textarea, ACS_VLINE, ACS_HLINE) == -1)
 		exit_program();
 
-	if (box(g_window_form, ACS_VLINE, ACS_HLINE) == ERR)
+	if (box(g_window_form, ACS_VLINE, ACS_HLINE) == -1)
 		exit_program();
 
-	if (wrefresh(g_window_textarea) == ERR)
+	if (wrefresh(g_window_textarea) == -1)
 		exit_program();
 
-	if (wrefresh(g_window_form) == ERR)
+	if (wrefresh(g_window_form) == -1)
 		exit_program();
 
-	if (refresh() == ERR)
+	if (refresh() == -1)
 		exit_program();
 
 	if (move(LINES - 2, 1) == -1)
 		exit_program();
 
-	if (pthread_mutex_unlock(&g_mutex) == ERR)
+	if (pthread_mutex_unlock(&g_mutex) == -1)
 		exit_program();
 }
 
 void print_textarea()
 {
-	if (pthread_mutex_lock(&g_mutex) == ERR)
+	if (pthread_mutex_lock(&g_mutex) == -1)
 		exit_program();
 
-	char* t_buffer[list_size(&g_list)];
+	char* t_buffer[list_size(g_list)];
 
-	for(int t_index = 0; t_index < list_size(&g_list); t_index++)
+	for(int t_index = 0; t_index < list_size(g_list); t_index++)
 		t_buffer[t_index] = alloca(50 * sizeof(char));
 
-	list_to_array(&g_list, t_buffer, 0, list_size(&g_list));
+	list_to_array(g_list, (void*) t_buffer, 0, list_size(g_list));
 
-	if (wclear(g_window_textarea) == ERR)
+	if (wclear(g_window_textarea) == -1)
 		exit_program();
 
-	for(int t_index = 0; t_index < list_size(&g_list); t_index++)
-		if (mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]) == ERR)
+	for(int t_index = 0; t_index < list_size(g_list); t_index++)
+		if (mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]) == -1)
 			exit_program();
 
-	if (pthread_mutex_unlock(&g_mutex) == ERR)
+	if (pthread_mutex_unlock(&g_mutex) == -1)
 		exit_program();
 
 	refresh_windows();
@@ -129,13 +120,16 @@ void print_textarea()
 
 void adjust_list()
 {
-	if (pthread_mutex_lock(&g_mutex) == ERR)
+	if (pthread_mutex_lock(&g_mutex) == -1)
 		exit_program();
 
-	if (list_size(&g_list) > (LINES / 3) - 3)
-		list_remove_element(&g_list, 0);
+	if (list_size(g_list) > (LINES / 3) - 3)
+	{
+		free(list_get(g_list, list_size(g_list)));
+		list_pop_last(&g_list);
+	}
 
-	if (pthread_mutex_unlock(&g_mutex) == ERR)
+	if (pthread_mutex_unlock(&g_mutex) == -1)
 		exit_program();
 }
 
@@ -147,10 +141,10 @@ void initialize_socket(int p_server_socket_to_initialize)
 	t_sockaddr_in_server.sin_addr.s_addr = INADDR_ANY;
 	t_sockaddr_in_server.sin_port = htons(g_port);
 
-	if (bind(p_server_socket_to_initialize, (struct sockaddr *) &t_sockaddr_in_server, sizeof(t_sockaddr_in_server)) < 0)
+	if (bind(p_server_socket_to_initialize, (struct sockaddr *) &t_sockaddr_in_server, sizeof(t_sockaddr_in_server)) == -1)
 		exit_program();
 
-	if (listen(p_server_socket_to_initialize, 10) == ERR)
+	if (listen(p_server_socket_to_initialize, 10) == -1)
 		exit_program();
 }
 
@@ -178,23 +172,23 @@ void initialize()
 
 	g_connections = malloc(sizeof(CONNECTION) * g_number_services);
 
-	initialize_windows();
-
-	refresh_windows();
-
 	initialize_services();
 
 	initialize_connections();
+
+	initialize_windows();
+
+	refresh_windows();
 }
 
 void foo()
 {
-	if (pthread_create(&g_command_thread, NULL, command_handler, NULL) == ERR)
+	if (pthread_create(&g_command_thread, NULL, command_handler, NULL) == -1)
 		exit_program();
 
 	int t_server_socket = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (t_server_socket == ERR)
+	if (t_server_socket == -1)
 		exit_program();
 
 	initialize_socket(t_server_socket);
@@ -203,13 +197,20 @@ void foo()
 
 	while(1)
 	{
-		int t_index = 0;
+		int t_index;
+
+		if(sem_getvalue(&g_semaphore, &t_1index) == -1)
+		{
+		    perror(ERROR_MESSAGE_SEM_GETVALUE);
+
+		    exit_program();
+		}
 
 		char t_receive_buffer[BUFSIZ];
 		socklen_t t_socketlen = sizeof(t_sockaddr_in_client);
 		g_connections[t_index].a_socket = accept(t_server_socket, (struct sockaddr*) &t_sockaddr_in_client, &t_socketlen);
 
-		if (g_connections[t_index].a_socket == ERR)
+		if (g_connections[t_index].a_socket == -1)
 			exit_program();
 
 		int t_service_id;
@@ -231,14 +232,11 @@ void foo()
 		sprintf(t_buffer_int, "%d", t_index);
 
 		strcpy(t_buffer, "New connection (");
-		strcat(t_buffer, t_buffer_int);
+		strcat(t_buffer, "yoyo");
 		strcat(t_buffer, ") ");
 		strcat(t_buffer, " -> ");
-		strcat(t_buffer, t_receive_buffer);
 
-		add_message(t_buffer);
-
-		print_textarea();
+		print_message(t_buffer);
 
 		if (pthread_create(&g_connections[t_index].a_pthread,
 		NULL, g_services[t_service_id].a_service_handler, (void*) (intptr_t) t_index) != OK)
@@ -246,16 +244,10 @@ void foo()
 
 		memset(t_receive_buffer, 0, BUFSIZ);
 
-		if (pthread_mutex_lock(&g_mutex) == ERR)
-			exit_program();
-
 		if(sem_post(&g_semaphore) == -1)
 		{
 			perror(ERROR_MESSAGE_SEM_POST);
 		}
-
-		if (pthread_mutex_unlock(&g_mutex) == ERR)
-			exit_program();
 	}
 }
 
@@ -355,22 +347,22 @@ void re_initialize_windows()
 
 void close_windows()
 {
-	if (pthread_mutex_lock(&g_mutex) == ERR)
+	if (pthread_mutex_lock(&g_mutex) == -1)
 		exit_program();
 
-	if (erase() == ERR)
+	if (erase() == -1)
 		exit_program();
 
-	if (endwin() == ERR)
+	if (endwin() == -1)
 		exit_program();
 
-	if (pthread_mutex_unlock(&g_mutex) == ERR)
+	if (pthread_mutex_unlock(&g_mutex) == -1)
 		exit_program();
 }
 
 void close_sockets()
 {
-	if (pthread_mutex_lock(&g_mutex) == ERR)
+	if (pthread_mutex_lock(&g_mutex) == -1)
 		exit_program();
 
 	int t_sem_value;
@@ -380,11 +372,7 @@ void close_sockets()
 		perror(ERROR_MESSAGE_SEM_GETVALUE);
 	}
 
-	for(int t_index = 0; t_index < t_sem_value; t_index++)
-		if (close(g_connections[t_index].a_socket) == ERR)
-			print_graphical_EXIT_FAILURE();
-
-	if (pthread_mutex_unlock(&g_mutex) == ERR)
+	if (pthread_mutex_unlock(&g_mutex) == -1)
 		exit_program();
 }
 
@@ -393,8 +381,6 @@ void exit_program()
 	close_windows();
 
 	close_sockets();
-
-	exit_program("exit_program : ");
 
 	exit(errno);
 }
@@ -468,12 +454,16 @@ void initialize_options(OPTIONS* p_options)
 
 void add_message(char* p_message)
 {
-	if (pthread_mutex_unlock(&g_mutex) == ERR)
+	if (pthread_mutex_lock(&g_mutex) == -1)
 		exit_program();
 
-	list_add_last_element(&g_list, p_message);
+	char* t_message = malloc(sizeof(char) * strlen(p_message));
 
-	if (pthread_mutex_unlock(&g_mutex) == ERR)
+	strcpy(t_message, p_message);
+
+	list_push_first(&g_list, t_message);
+
+	if (pthread_mutex_unlock(&g_mutex) == -1)
 		exit_program();
 
 	adjust_list();
@@ -515,7 +505,7 @@ int main(int p_count_arguments, char** p_arguments_values)
 
 	initialize();
 
-	initialize_options(&t_options);
+	//initialize_options(&t_options);
 
 	foo();
 
