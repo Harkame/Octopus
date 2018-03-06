@@ -1,10 +1,7 @@
 #ifndef INPUT_LINE_H
 #define INPUT_LINE_H
 
-#include <ncurses.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
+#include "../../header.h"
 
 extern pthread_mutex_t g_mutex;
 extern struct LIST_STRING g_list_string;

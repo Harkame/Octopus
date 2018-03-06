@@ -26,11 +26,11 @@ return t_total_sended_bytes;
 
 int receive_complete(int p_socket, void** p_buffer, int p_bytes_to_receive)
 {
-  int t_received_bytes = recv(p_socket,  p_buffer, p_bytes_to_receive, MSG_WAITALL);
+  int t_received_bytes = recv(p_socket, p_buffer, p_bytes_to_receive, MSG_WAITALL);
 
   switch(t_received_bytes)
   {
-    case -1:
+    case ERR:
       return -1;
 
     case 0:

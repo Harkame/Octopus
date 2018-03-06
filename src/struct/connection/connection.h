@@ -10,6 +10,9 @@ typedef struct CONNECTION
 	pthread_t a_pthread;
 } CONNECTION;
 
-void create_connection(CONNECTION* p_connection_to_create);
+/*
+*
+*/
+int create_connection(CONNECTION* p_connection_to_create);
 
 #endif

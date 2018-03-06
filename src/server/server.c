@@ -372,7 +372,7 @@ void close_sockets()
 		perror(ERROR_MESSAGE_SEM_GETVALUE);
 	}
 
-	if (pthread_mutex_unlock(&g_mutex) == -1)
+	if(pthread_mutex_unlock(&g_mutex) == -1)
 		exit_program();
 }
 

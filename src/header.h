@@ -12,5 +12,7 @@
 #include <getopt.h> //options
 #include <semaphore.h> //sem_...
 #include <signal.h> //sigaction
+#include <ncurses.h> //ncurses...
+#include <ctype.h> //isprint
 
 #endif
