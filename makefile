@@ -20,7 +20,7 @@ directory:
 	${MKDIR} ./bin/services/system;
 	${MKDIR} ./bin/services/tchat;
 	${MKDIR} ./bin/
-	${MKDIR} ./bin/services/common/transfer;
+	${MKDIR} ./bin/services/transfer;
 
 file: clean library services server client test clean
 

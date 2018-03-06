@@ -199,7 +199,7 @@ void foo()
 	{
 		int t_index;
 
-		if(sem_getvalue(&g_semaphore, &t_1index) == -1)
+		if(sem_getvalue(&g_semaphore, &t_index) == -1)
 		{
 		    perror(ERROR_MESSAGE_SEM_GETVALUE);
 
