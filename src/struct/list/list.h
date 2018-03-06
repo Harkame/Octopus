@@ -1,10 +1,7 @@
-#ifndef LIST_H
-#define LIST_H
+#ifndef __LIST__H__
+#define __LIST__H__
 
-#include <stdlib.h>
-#include <error.h>
-#include <stdio.h>
-#include <stdint.h>
+#include "../../header.h"
 
 typedef struct LIST
 {

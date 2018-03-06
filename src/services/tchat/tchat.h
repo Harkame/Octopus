@@ -1,5 +1,7 @@
-#ifndef TCHAT_H
-#define TCHAT_H
+#ifndef __TCHAT__H__
+#define __TCHAT__H__
+
+#include "../../header.h"
 
 #include "../../struct/list/list.h"
 #include "../../server/server.h"

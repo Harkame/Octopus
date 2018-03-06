@@ -28,7 +28,7 @@ void print_message(char* p_message_to_print)
 
 void* read_handler()
 {
-	char t_received_buffer[BUFSIZ];
+	//char t_received_buffer[BUFSIZ];
 	char t_message[BUFSIZ];
 
 	while(1)
@@ -158,10 +158,10 @@ void foo()
 		exit_program();
 	}
 
-	if(pthread_create(&g_write_thread, NULL, (void*) write_handler, NULL) == -1)
+	if(pthread_create(&g_write_thread, NULL, write_handler, NULL) == -1)
 		exit_program();
 
-	if(pthread_create(&g_read_thread, NULL, (void*) read_handler, NULL) == -1)
+	if(pthread_create(&g_read_thread, NULL, read_handler, NULL) == -1)
 		exit_program();
 
 	if(pthread_join(g_read_thread, NULL) == -1)

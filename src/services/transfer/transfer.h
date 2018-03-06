@@ -1,5 +1,7 @@
-#ifndef _SERVICE_TRANSFER_H
-#define _SERVICE_TRANSFER_H
+#ifndef __SERVICE__TRANSFER__H__
+#define __SERVICE__TRANSFER__H__
+
+#include "../../header.h"
 
 #include "../../server/server.h"
 

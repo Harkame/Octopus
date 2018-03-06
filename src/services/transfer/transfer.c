@@ -6,8 +6,7 @@ void* transfer_handler(void* p_client_number)
 
 	char t_receive_buffer[BUFSIZ];
 
-	char t_buffer[BUFSIZ] = {
-		'\0' };
+	char t_buffer[BUFSIZ] = {'\0'};
 
 	while(1)
 	{

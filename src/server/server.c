@@ -505,7 +505,7 @@ int main(int p_count_arguments, char** p_arguments_values)
 
 	initialize();
 
-	//initialize_options(&t_options);
+	initialize_options(&t_options);
 
 	foo();
 

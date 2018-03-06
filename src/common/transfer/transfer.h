@@ -1,14 +1,7 @@
 #ifndef _COMMON_TRANSFER_H_
 #define _COMMON_TRANSFER_H_
 
-#include <dirent.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <netinet/in.h> //sockaddr_in
-#include <unistd.h>
+#include "../../header.h"
 
 #define MESSAGE_FILE_SIZE "File size : %d\n"
 #define MESSAGE_REMAINING "Remaining : %d\n"

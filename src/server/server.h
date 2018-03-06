@@ -1,20 +1,7 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef __SERVER__H__
+#define __SERVER__H__
 
-#include <arpa/inet.h>
-#include <curses.h>
-#include <features.h>
-#include <netinet/tcp.h>
-#include <pthread.h> //pthread_...
-#include <sys/ioctl.h>
-#include <sys/resource.h>
-#include <sys/socket.h> //socket, etc
-#include <sys/wait.h>
-#include <unistd.h> //close, etc
-#include <errno.h>
-#include <getopt.h> //options
-#include <semaphore.h> //sem_...
-#include <signal.h> //sigaction
+#include "../header.h"
 
 #include "../services/tchat/tchat.h"
 #include "../services/system/system.h"

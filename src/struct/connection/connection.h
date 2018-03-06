@@ -1,7 +1,7 @@
-#ifndef CONNECTION_H_
-#define CONNECTION_H_
+#ifndef __CONNECTION__H__
+#define __CONNECTION__H__
 
-#include <stdlib.h>
+#include "../../header.h"
 
 typedef struct CONNECTION
 {

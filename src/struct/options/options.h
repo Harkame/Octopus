@@ -1,9 +1,7 @@
-#ifndef OPTIONS_H
-#define OPTINOS_H
+#ifndef __OPTIONS__H__
+#define __OPTIONS__H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "../../header.h"
 
 typedef struct OPTIONS
 {

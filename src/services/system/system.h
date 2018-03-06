@@ -1,5 +1,7 @@
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef __SYSTEM__H__
+#define __SYSTEM__H__
+
+#include "../../header.h"
 
 #include "../../server/server.h"
 

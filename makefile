@@ -1,5 +1,5 @@
 MKDIR              = mkdir -p
-GCC                = gcc --std=gnu99 -O3
+GCC                = gcc --pedantic-errors -Wall -Wextra -Werror -Wfatal-errors -std=gnu99 -O3
 OPTIONS            = -pthread -D_GNU_SOURCE -lncurses
 LIBRARY_OPTIONS    = -c
 LIBRARY_STRUCTURES = ./bin/struct/list/list.o ./bin/struct/input_line/input_line.o ./bin/struct/connection/connection.o ./bin/struct/options/options.o ./bin/common/transfer/transfer.o
@@ -8,6 +8,7 @@ LIBRARY_SERVICES   = ./bin/services/tchat/tchat.o ./bin/services/system/system.o
 all: directory file clean
 
 directory:
+	${MKDIR} ./bin/
 	${MKDIR} ./bin/server;
 	${MKDIR} ./bin/client;
 	${MKDIR} ./bin/common/transfer;
@@ -19,7 +20,6 @@ directory:
 	${MKDIR} ./bin/services;
 	${MKDIR} ./bin/services/system;
 	${MKDIR} ./bin/services/tchat;
-	${MKDIR} ./bin/
 	${MKDIR} ./bin/services/transfer;
 
 file: clean library services server client test clean
@@ -41,10 +41,10 @@ transfer:
 	${GCC} ./src/common/transfer/transfer.c ${LIBRARY_OPTIONS} -o ./bin/common/transfer/transfer.o -Wno-unused-result;
 
 struct:
-	gcc ./src/struct/list/list.c ${LIBRARY_OPTIONS} ${OPTIONS} -o ./bin/struct/list/list.o;
+	${GCC} ./src/struct/list/list.c ${LIBRARY_OPTIONS} ${OPTIONS} -o ./bin/struct/list/list.o;
 	${GCC} ./src/struct/input_line/input_line.c ${LIBRARY_OPTIONS} ${OPTIONS} -o ./bin/struct/input_line/input_line.o;
-	${GCC} ./src/struct/connection/connection.c ${LIBRARY_OPTIONS}  -o ./bin/struct/connection/connection.o;
-	${GCC} ./src/struct/options/options.c ${LIBRARY_OPTIONS}  -o ./bin/struct/options/options.o;
+	${GCC} ./src/struct/connection/connection.c ${LIBRARY_OPTIONS} -o ./bin/struct/connection/connection.o;
+	${GCC} ./src/struct/options/options.c ${LIBRARY_OPTIONS} -o ./bin/struct/options/options.o;
 
 test:
 	${GCC} ./test/struct/list/test_list.c ./bin/struct/list/list.o -o ./test/struct/list/test_list.out;
