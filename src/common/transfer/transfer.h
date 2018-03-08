@@ -1,5 +1,5 @@
-#ifndef _COMMON_TRANSFER_H_
-#define _COMMON_TRANSFER_H_
+#ifndef __COMMON__TRANSFER__H__
+#define __COMMON__TRANSFER__H__
 
 #include "../../header.h"
 

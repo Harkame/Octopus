@@ -6,15 +6,15 @@ int send_complete(int p_socket, void** p_buffer, int p_bytes_to_send)
 
   while(p_bytes_to_send > 0)
   {
-  int t_sended_bytes = send(p_socket, p_buffer + t_total_sended_bytes, p_bytes_to_send, 0);
+    int t_sended_bytes = send(p_socket, p_buffer + t_total_sended_bytes, p_bytes_to_send, 0);
 
-  switch(t_sended_bytes)
-  {
-  case -1:
-    return -1;
+    switch(t_sended_bytes)
+    {
+      case -1:
+        return -1;
 
-  case 0:
-    return 0;
+      case 0:
+        return 0;
   }
 
   p_bytes_to_send -= t_sended_bytes;
@@ -40,7 +40,7 @@ int receive_complete(int p_socket, void** p_buffer, int p_bytes_to_receive)
   return t_received_bytes;
 }
 
-int send_file_traces(int p_socket, FILE* p_file_to_send)
+int send_file(int p_socket, FILE* p_file_to_send)
 {
   int t_file_descriptor = fileno(p_file_to_send);
 
@@ -53,8 +53,6 @@ int send_file_traces(int p_socket, FILE* p_file_to_send)
           return -1;
 
           int t_file_size =  t_stat.st_size;
-
-          fprintf(stdout, MESSAGE_FILE_SIZE, t_file_size);
 
           switch(send_complete(p_socket, (void*) &t_file_size, sizeof(int)))
           {
@@ -79,7 +77,7 @@ int send_file_traces(int p_socket, FILE* p_file_to_send)
                               case -1:
                                         return -1;
 
-                              case 0:
+                                    case 0:
                                         return 0;
                     }
 
@@ -92,8 +90,6 @@ int send_file_traces(int p_socket, FILE* p_file_to_send)
                                         return 0;
                     }
 
-                    fprintf(stdout, MESSAGE_REMAINING, t_remaining_bytes_to_send);
-
                     t_remaining_bytes_to_send -= t_readed_bytes;
           }
 
@@ -101,7 +97,7 @@ return t_file_size;
 }
 
 
-int receive_file_traces(int p_socket, FILE* p_file_to_receive)
+int receive_file(int p_socket, FILE* p_file_to_receive)
 {
   int t_file_size;
 
@@ -113,8 +109,6 @@ int receive_file_traces(int p_socket, FILE* p_file_to_receive)
     case 0:
       return 0;
   }
-
-  fprintf(stdout, MESSAGE_FILE_SIZE, t_file_size);
 
   int t_remaining_bytes_to_receive = t_file_size;
 
@@ -145,8 +139,6 @@ int receive_file_traces(int p_socket, FILE* p_file_to_receive)
     }
 
     fwrite(t_buffer, sizeof(char), t_received_size, p_file_to_receive);
-
-    fprintf(stdout, MESSAGE_REMAINING, t_remaining_bytes_to_receive);
 
     t_remaining_bytes_to_receive -= t_received_size;
   }
