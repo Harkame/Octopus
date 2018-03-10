@@ -31,13 +31,14 @@ void* read_handler()
 	//char t_received_buffer[BUFSIZ];
 	char t_message[BUFSIZ];
 
-	while(1)
+	while (1)
 	{
 		memset(t_message, 0, BUFSIZ);
 
 		int t_message_length;
 
-		switch(receive_complete(g_socket, (void*) &t_message_length, sizeof(int)))
+		switch (receive_complete(g_socket, (void*) &t_message_length,
+				sizeof(int)))
 		{
 			case -1:
 				pthread_exit(NULL);
@@ -48,7 +49,8 @@ void* read_handler()
 			break;
 		}
 
-		switch(receive_complete(g_socket, (void*) t_message, t_message_length))
+		switch (receive_complete(g_socket, (void*) t_message,
+				t_message_length))
 		{
 			case -1:
 				pthread_exit(NULL);
@@ -69,10 +71,11 @@ void* write_handler()
 	make_input_line(&linep_bufferfer);
 	char t_readed_line[BUFSIZ];
 
-	while(1)
+	while (1)
 	{
-		int t_readed_length = get_line_non_blocking(&linep_bufferfer, t_readed_line,
-		BUFSIZ);
+		int t_readed_length = get_line_non_blocking(&linep_bufferfer,
+				t_readed_line,
+				BUFSIZ);
 
 		if (t_readed_length > 1)
 		{
@@ -81,10 +84,10 @@ void* write_handler()
 
 			int t_size = strlen(t_readed_line);
 
-			if(send_complete(g_socket, (void*) &t_size, sizeof(int)) == -1)
+			if (send_complete(g_socket, (void*) &t_size, sizeof(int)) == -1)
 				exit_program();
 
-			if(send_complete(g_socket, (void*) t_readed_line, t_size) == -1)
+			if (send_complete(g_socket, (void*) t_readed_line, t_size) == -1)
 				exit_program();
 
 			print_message(t_readed_line);
@@ -145,7 +148,8 @@ void foo()
 	t_sockaddr_in_client.sin_family = AF_INET;
 	t_sockaddr_in_client.sin_port = htons(g_port);
 
-	if (connect(g_socket, (struct sockaddr *) &t_sockaddr_in_client, sizeof(t_sockaddr_in_client)) < 0)
+	if (connect(g_socket, (struct sockaddr *) &t_sockaddr_in_client,
+			sizeof(t_sockaddr_in_client)) < 0)
 		exit_program();
 
 	struct input_line linep_bufferfer;
@@ -153,18 +157,18 @@ void foo()
 
 	int t_code = 0;
 
-	if(send_complete(g_socket, (void*) &t_code, sizeof(int)) == -1)
+	if (send_complete(g_socket, (void*) &t_code, sizeof(int)) == -1)
 	{
 		exit_program();
 	}
 
-	if(pthread_create(&g_write_thread, NULL, write_handler, NULL) == -1)
+	if (pthread_create(&g_write_thread, NULL, write_handler, NULL) == -1)
 		exit_program();
 
-	if(pthread_create(&g_read_thread, NULL, read_handler, NULL) == -1)
+	if (pthread_create(&g_read_thread, NULL, read_handler, NULL) == -1)
 		exit_program();
 
-	if(pthread_join(g_read_thread, NULL) == -1)
+	if (pthread_join(g_read_thread, NULL) == -1)
 		exit_program();
 }
 
@@ -183,7 +187,7 @@ void print_textarea()
 
 	char* t_buffer[list_size(g_list)];
 
-	for(int t_index = 0; t_index < list_size(g_list); t_index++)
+	for (int t_index = 0; t_index < list_size(g_list); t_index++)
 		t_buffer[t_index] = alloca(50 * sizeof(char));
 
 	list_to_array(g_list, (void*) t_buffer, 0, list_size(g_list));
@@ -191,8 +195,9 @@ void print_textarea()
 	if (wclear(g_window_textarea) == -1)
 		exit_program();
 
-	for(int t_index = 0; t_index < list_size(g_list); t_index++)
-		if (mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index]) == -1)
+	for (int t_index = 0; t_index < list_size(g_list); t_index++)
+		if (mvwprintw(g_window_textarea, 1 + t_index, 1, t_buffer[t_index])
+				== -1)
 			exit_program();
 
 	if (pthread_mutex_unlock(&g_mutex) == -1)
@@ -246,36 +251,39 @@ void initialize_options(struct OPTIONS* p_options)
 {
 	int t_result_option = 0;
 	int t_option_index = 0;
-	struct option t_long_options[] = {
-		{
-			"help", 0, NULL, 0 }, {
-			NULL, 0, NULL, 0 } };
+	struct option t_long_options[] =
+	{
+	{ "help", 0, NULL, 0 },
+	{
+	NULL, 0, NULL, 0 } };
 
-	while((t_result_option = getopt_long(p_options->a_options_count, p_options->a_options_values, "c:p:", t_long_options, &t_option_index)) != -1)
+	while ((t_result_option = getopt_long(p_options->a_options_count,
+			p_options->a_options_values, "c:p:", t_long_options,
+			&t_option_index)) != -1)
 	{
 		switch (t_result_option)
 		{
 			case 0:
 				//if(strcasecmp("help", optarg_list)
 				//help();
-				break;
+			break;
 
 			case 'i':
-				break;
+			break;
 
 			case 'p':
 				g_port = atoi(optarg);
-				break;
+			break;
 
 			case 'd':
-				break;
+			break;
 
 			case 'f':
-				break;
+			break;
 
 			default:
 				//help();
-				break;
+			break;
 		}
 	}
 }

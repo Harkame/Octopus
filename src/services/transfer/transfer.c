@@ -6,18 +6,20 @@ void* transfer_handler(void* p_client_number)
 
 	char t_receive_buffer[BUFSIZ];
 
-	char t_buffer[BUFSIZ] = {'\0'};
+	char t_buffer[BUFSIZ] =
+	{ '\0' };
 
-	while(1)
+	while (1)
 	{
-		ssize_t t_receved_bytes = recv(g_connections[t_client_number].a_socket, t_receive_buffer, BUFSIZ, 0);
+		ssize_t t_receved_bytes = recv(g_connections[t_client_number].a_socket, t_receive_buffer,
+							BUFSIZ, 0);
 
 		sprintf(t_buffer, "%d", t_client_number);
 		strcat(t_buffer, " : ");
 
-		if(t_receved_bytes <= 0)
+		if (t_receved_bytes <= 0)
 		{
-			if(t_receved_bytes == 0)
+			if (t_receved_bytes == 0)
 				strcat(t_buffer, ERROR_RECV_CONNECTION_LOST);
 			else
 				strcat(t_buffer, ERROR_RECV_CONNECTION_OTHER);
@@ -42,13 +44,13 @@ void* transfer_handler(void* p_client_number)
 
 			FILE* t_file = fopen(t_receive_buffer, "r");
 
-			if(t_file == NULL)
+			if (t_file == NULL)
 			{
 				close(g_connections[t_client_number].a_socket);
 				pthread_exit(NULL);
 			}
 
-			if(send_file_traces(g_connections[t_client_number].a_socket, t_file) != 0)
+			if (send_file(g_connections[t_client_number].a_socket, t_file) != 0)
 			{
 				close(g_connections[t_client_number].a_socket);
 				pthread_exit(NULL);

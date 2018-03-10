@@ -35,9 +35,11 @@ int g_socket;
 pthread_t g_read_thread;
 pthread_t g_write_thread;
 
-int g_port  = DEFAULT_PORT;
-char g_ip[] = {DEFAULT_IP};
-char g_directory[BUFSIZ] = {DEFAULT_DIRECTORY};
+int g_port = DEFAULT_PORT;
+char g_ip[] =
+{ DEFAULT_IP };
+char g_directory[BUFSIZ] =
+{ DEFAULT_DIRECTORY };
 
 char g_file_name[BUFSIZ];
 
