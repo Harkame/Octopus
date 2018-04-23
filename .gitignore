@@ -4,3 +4,7 @@
 
 bin/
 /Debug/
+
+.settings/
+
+.cproject
