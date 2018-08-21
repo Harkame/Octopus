@@ -1,6 +1,8 @@
 *.gch
 *.out
 *.so
+*.exe
+*.class
 
 bin/
 /Debug/
